@@ -1,0 +1,22 @@
+---
+import { SITE } from "../consts";
+
+export interface Props {
+  /** The "command" text after the prompt sigil, e.g. "cat about.md". */
+  command: string;
+  /** Working dir shown in the path segment. Defaults to "~". */
+  path?: string;
+  /** Show a blinking cursor after the command. */
+  cursor?: boolean;
+}
+
+const { command, path = "~", cursor = false } = Astro.props;
+---
+
+<p class="prompt" aria-hidden="true">
+  <span class="prompt__user">{SITE.user}@{SITE.domain}</span><span
+    class="prompt__sep">:</span><span class="prompt__path">{path}</span><span
+    class="prompt__sigil">$</span>
+  <span class="prompt__cmd">{command}</span>
+  {cursor && <span class="cursor"></span>}
+</p>

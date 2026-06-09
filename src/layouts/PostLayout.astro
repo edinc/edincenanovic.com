@@ -1,0 +1,160 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+import FormattedDate from "../components/FormattedDate.astro";
+import Prompt from "../components/Prompt.astro";
+import { SITE } from "../consts";
+import { blogPostingSchema } from "../lib/seo";
+
+export interface Props {
+  title: string;
+  description: string;
+  pubDate: Date;
+  updatedDate?: Date;
+  tags?: string[];
+}
+
+const { title, description, pubDate, updatedDate, tags = [] } = Astro.props;
+
+const origin = Astro.site?.href ?? "https://edincenanovic.com/";
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const jsonLd = blogPostingSchema({
+  title,
+  description,
+  canonical,
+  origin,
+  author: SITE.name,
+  locale: SITE.locale,
+  datePublished: pubDate,
+  dateModified: updatedDate,
+  tags,
+});
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  article={true}
+  publishedTime={pubDate}
+  modifiedTime={updatedDate}
+  tags={tags}
+  jsonLd={jsonLd}
+>
+  <article class="post">
+    <Prompt command={`cat ~/posts/${title}`} path="~/blog" />
+
+    <header class="post__header">
+      <h1 class="post__title">{title}</h1>
+      <div class="post__meta">
+        <FormattedDate date={pubDate} />
+        {
+          updatedDate && (
+            <span class="comment">updated <FormattedDate date={updatedDate} /></span>
+          )
+        }
+        {
+          tags.length > 0 && (
+            <ul class="post__tags" aria-label="Tags">
+              {tags.map((tag) => (
+                <li class="post__tag">#{tag}</li>
+              ))}
+            </ul>
+          )
+        }
+      </div>
+    </header>
+
+    <div class="post__body">
+      <slot />
+    </div>
+
+    <footer class="post__footer">
+      <a class="post__back" href="/blog">
+        <span aria-hidden="true">cd</span> ../blog
+      </a>
+    </footer>
+  </article>
+</BaseLayout>
+
+<style>
+  .post {
+    max-width: var(--measure);
+    margin-inline: auto;
+  }
+  .post__header {
+    margin: var(--sp-4) 0 var(--sp-8);
+    padding-bottom: var(--sp-6);
+    border-bottom: 1px solid var(--border);
+  }
+  .post__title {
+    margin: var(--sp-2) 0 var(--sp-3);
+    font-size: clamp(1.6rem, 4vw, 2.2rem);
+  }
+  .post__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sp-3);
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+  .post__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .post__tag {
+    color: var(--magenta);
+  }
+  .post__body {
+    line-height: 1.75;
+  }
+  .post__body :global(h2) {
+    margin-top: var(--sp-12);
+    font-size: 1.4rem;
+  }
+  .post__body :global(h3) {
+    margin-top: var(--sp-8);
+    font-size: 1.15rem;
+  }
+  .post__body :global(p),
+  .post__body :global(ul),
+  .post__body :global(ol) {
+    max-width: var(--measure);
+  }
+  .post__body :global(blockquote) {
+    margin: var(--sp-6) 0;
+    padding: var(--sp-2) var(--sp-4);
+    border-left: 3px solid var(--green);
+    color: var(--text-muted);
+    background: var(--bg-elev);
+    border-radius: 0 var(--radius) var(--radius) 0;
+  }
+  .post__body :global(img) {
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+  }
+  /* Code blocks: light theme uses Shiki's inline github-light colors; dark
+     theme swaps to the github-dark colors Astro stores in --shiki-dark. The
+     background always uses our terminal inset token so it matches the theme. */
+  .post__body :global(pre.astro-code) {
+    background-color: var(--bg-inset) !important;
+  }
+  :global([data-theme="dark"]) .post__body :global(.astro-code),
+  :global([data-theme="dark"]) .post__body :global(.astro-code) :global(span) {
+    color: var(--shiki-dark) !important;
+  }
+  .post__footer {
+    margin-top: var(--sp-12);
+    padding-top: var(--sp-6);
+    border-top: 1px solid var(--border);
+  }
+  .post__back {
+    color: var(--text-muted);
+  }
+  .post__back:hover {
+    color: var(--green);
+  }
+</style>

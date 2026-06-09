@@ -1,0 +1,93 @@
+---
+import { SOCIALS } from "../consts";
+---
+
+<ul class="socials" role="list">
+  {
+    SOCIALS.map((s) => (
+      <li class="socials__item">
+        <a class="socials__link" href={s.href} rel="me noopener noreferrer" target="_blank">
+          <span class="socials__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20">
+              <path fill="currentColor" d={s.icon} />
+            </svg>
+          </span>
+          <span class="socials__name">{s.name}</span>
+          <span class="socials__handle" aria-hidden="true">{s.handle}</span>
+          <span class="socials__arrow" aria-hidden="true">→</span>
+        </a>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .socials {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--sp-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  @media (max-width: 520px) {
+    .socials {
+      grid-template-columns: 1fr;
+    }
+  }
+  .socials__link {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-3);
+    padding: var(--sp-3) var(--sp-4);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    transition: border-color 0.15s ease, transform 0.15s ease,
+      background 0.15s ease;
+  }
+  .socials__link:hover {
+    text-decoration: none;
+    border-color: var(--green);
+    background: var(--bg-elev);
+    transform: translateY(-2px);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .socials__link:hover {
+      transform: none;
+    }
+  }
+  .socials__icon {
+    display: inline-grid;
+    place-items: center;
+    color: var(--text-muted);
+    flex-shrink: 0;
+  }
+  .socials__link:hover .socials__icon {
+    color: var(--green);
+  }
+  .socials__name {
+    color: var(--text-strong);
+    font-weight: 600;
+  }
+  .socials__handle {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-left: auto;
+  }
+  .socials__arrow {
+    color: var(--text-muted);
+    opacity: 0;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+  }
+  .socials__link:hover .socials__arrow {
+    opacity: 1;
+    color: var(--green);
+  }
+  @media (max-width: 520px) {
+    .socials__handle {
+      display: none;
+    }
+  }
+</style>

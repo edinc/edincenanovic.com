@@ -1,0 +1,104 @@
+---
+import FormattedDate from "./FormattedDate.astro";
+
+export interface Props {
+  title: string;
+  description: string;
+  pubDate: Date;
+  url: string;
+  tags?: string[];
+  /** Heading level for the card title so pages keep a valid heading order. */
+  headingLevel?: 2 | 3;
+}
+
+const { title, description, pubDate, url, tags = [], headingLevel = 3 } = Astro.props;
+const Heading = `h${headingLevel}` as "h2" | "h3";
+---
+
+<article class="post-card">
+  <a class="post-card__link" href={url} aria-label={title}>
+    <Heading class="post-card__title">{title}</Heading>
+  </a>
+  <div class="post-card__meta">
+    <FormattedDate date={pubDate} />
+    {
+      tags.length > 0 && (
+        <ul class="post-card__tags" aria-label="Tags">
+          {tags.map((tag) => (
+            <li class="post-card__tag">#{tag}</li>
+          ))}
+        </ul>
+      )
+    }
+  </div>
+  <p class="post-card__desc">{description}</p>
+  <a class="post-card__more" href={url} tabindex="-1" aria-hidden="true">
+    cat {url.split("/").filter(Boolean).pop()}.md <span class="arrow">→</span>
+  </a>
+</article>
+
+<style>
+  .post-card {
+    padding: var(--sp-6);
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    transition: border-color 0.15s ease, transform 0.15s ease;
+  }
+  .post-card:hover {
+    border-color: var(--green);
+    transform: translateY(-2px);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .post-card:hover {
+      transform: none;
+    }
+  }
+  .post-card__title {
+    margin: 0;
+    font-size: 1.2rem;
+  }
+  .post-card__link {
+    color: var(--text-strong);
+  }
+  .post-card__link:hover {
+    color: var(--blue);
+    text-decoration: none;
+  }
+  .post-card__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sp-3);
+    margin-top: var(--sp-2);
+    color: var(--text-muted);
+    font-size: 0.85rem;
+  }
+  .post-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .post-card__tag {
+    color: var(--magenta);
+  }
+  .post-card__desc {
+    margin: var(--sp-3) 0 0;
+    color: var(--text);
+  }
+  .post-card__more {
+    display: inline-block;
+    margin-top: var(--sp-4);
+    color: var(--text-muted);
+    font-size: 0.85rem;
+  }
+  .post-card:hover .post-card__more {
+    color: var(--green);
+  }
+  .post-card__more .arrow {
+    transition: transform 0.15s ease;
+  }
+</style>

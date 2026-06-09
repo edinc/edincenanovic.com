@@ -1,0 +1,211 @@
+---
+import { getCollection } from "astro:content";
+import { Image } from "astro:assets";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Prompt from "../components/Prompt.astro";
+import SocialLinks from "../components/SocialLinks.astro";
+import PostCard from "../components/PostCard.astro";
+import { SITE, SOCIALS } from "../consts";
+import portrait from "../assets/edin.jpg";
+import { byPubDateDesc, isVisible } from "../lib/posts";
+import { personWebSiteGraph } from "../lib/seo";
+
+const isProd = import.meta.env.PROD;
+const posts = (await getCollection("blog", (entry) => isVisible(entry, isProd)))
+  .sort(byPubDateDesc)
+  .slice(0, 3);
+
+const origin = Astro.site?.href ?? "https://edincenanovic.com/";
+const jsonLd = personWebSiteGraph(
+  origin,
+  SITE,
+  SOCIALS.map((s) => s.href)
+);
+---
+
+<BaseLayout title={SITE.name} description={SITE.tagline} jsonLd={jsonLd}>
+  <!-- whoami : hero -->
+  <section class="hero" aria-labelledby="hero-name">
+    <div class="window">
+      <div class="window__bar">
+        <span class="window__dots" aria-hidden="true">
+          <span class="window__dot window__dot--red"></span>
+          <span class="window__dot window__dot--amber"></span>
+          <span class="window__dot window__dot--green"></span>
+        </span>
+        <span class="window__title">{SITE.user}@{SITE.domain}: ~</span>
+      </div>
+      <div class="window__body hero__grid">
+        <div class="hero__intro">
+          <Prompt command="whoami" />
+          <h1 id="hero-name" class="hero__name">
+            {SITE.name}<span class="cursor" aria-hidden="true"></span>
+          </h1>
+          <p class="hero__role">
+            <span class="hero__role-arrow" aria-hidden="true">&gt;</span>
+            {SITE.role}
+          </p>
+        </div>
+        <figure class="hero__portrait">
+          <Image
+            src={portrait}
+            alt={`Portrait of ${SITE.name}`}
+            width={320}
+            height={320}
+            densities={[1, 2]}
+            loading="eager"
+            fetchpriority="high"
+          />
+          <figcaption class="hero__portrait-caption" aria-hidden="true">
+            ~/edin.jpg
+          </figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- cat about.md : bio -->
+  <section aria-labelledby="about-heading">
+    <h2 id="about-heading" class="cmd-heading">
+      <span class="visually-hidden">About</span>
+      <span aria-hidden="true">
+        <span class="sigil">$</span> cat <span class="name">about.md</span>
+      </span>
+    </h2>
+    <p class="bio">{SITE.bio}</p>
+  </section>
+
+  <!-- ls ~/socials : social links -->
+  <section aria-labelledby="socials-heading">
+    <h2 id="socials-heading" class="cmd-heading">
+      <span class="visually-hidden">Social links</span>
+      <span aria-hidden="true">
+        <span class="sigil">$</span> ls <span class="name">~/socials</span>
+      </span>
+    </h2>
+    <SocialLinks />
+  </section>
+
+  <!-- ls ~/posts : latest posts -->
+  {
+    posts.length > 0 && (
+      <section aria-labelledby="posts-heading">
+        <h2 id="posts-heading" class="cmd-heading">
+          <span class="visually-hidden">Latest posts</span>
+          <span aria-hidden="true">
+            <span class="sigil">$</span> ls <span class="name">~/posts</span>{" "}
+            <span class="comment" style="font-size:0.85rem"> latest writing</span>
+          </span>
+        </h2>
+        <ul class="post-list" role="list">
+          {posts.map((post) => (
+            <li>
+              <PostCard
+                title={post.data.title}
+                description={post.data.description}
+                pubDate={post.data.pubDate}
+                tags={post.data.tags}
+                url={`/blog/${post.id}/`}
+              />
+            </li>
+          ))}
+        </ul>
+        <p class="post-list__all">
+          <a href="/blog">cd ~/posts <span aria-hidden="true">→</span></a>
+        </p>
+      </section>
+    )
+  }
+</BaseLayout>
+
+<style>
+  .hero {
+    margin-top: var(--sp-2);
+  }
+  .hero__grid {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-6);
+  }
+  .hero__intro {
+    min-width: 0;
+  }
+  .hero__name {
+    margin: var(--sp-2) 0 var(--sp-3);
+    font-size: clamp(2rem, 7vw, 3rem);
+    letter-spacing: -0.01em;
+  }
+  .hero__role {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 1.05rem;
+  }
+  .hero__role-arrow {
+    color: var(--green);
+    margin-right: var(--sp-1);
+  }
+  .hero__portrait {
+    flex-shrink: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--sp-2);
+  }
+  .hero__portrait :global(img) {
+    width: clamp(108px, 26vw, 160px);
+    height: auto;
+    aspect-ratio: 1;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    /* subtle terminal-green frame glow + monochrome cohesion */
+    box-shadow: 0 0 0 1px var(--bg-inset), 0 8px 24px rgba(1, 4, 9, 0.45);
+    filter: grayscale(0.15) contrast(1.02);
+    transition: filter 0.2s ease, border-color 0.2s ease;
+  }
+  .hero__portrait:hover :global(img) {
+    border-color: var(--green);
+    filter: grayscale(0) contrast(1.05);
+  }
+  .hero__portrait-caption {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+  .hero__portrait-caption::before {
+    content: "$ cat ";
+    color: var(--green);
+    opacity: 0.8;
+  }
+  @media (max-width: 560px) {
+    .hero__grid {
+      flex-direction: column-reverse;
+      align-items: flex-start;
+      gap: var(--sp-4);
+    }
+    .hero__portrait {
+      align-items: flex-start;
+    }
+  }
+  .bio {
+    max-width: none;
+    color: var(--text);
+    font-size: 1.02rem;
+  }
+  .post-list {
+    display: grid;
+    gap: var(--sp-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .post-list__all {
+    margin-top: var(--sp-4);
+  }
+  .post-list__all a {
+    color: var(--text-muted);
+  }
+  .post-list__all a:hover {
+    color: var(--green);
+  }
+</style>

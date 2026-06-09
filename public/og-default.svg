@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <rect width="1200" height="630" fill="#0d1117"/>
+  <rect x="40" y="40" width="1120" height="550" rx="16" fill="#161b22" stroke="#30363d" stroke-width="2"/>
+  <rect x="40" y="40" width="1120" height="64" rx="16" fill="#010409"/>
+  <rect x="40" y="88" width="1120" height="16" fill="#161b22"/>
+  <circle cx="80" cy="72" r="9" fill="#f85149"/>
+  <circle cx="112" cy="72" r="9" fill="#d29922"/>
+  <circle cx="144" cy="72" r="9" fill="#3fb950"/>
+  <text x="190" y="78" font-family="JetBrains Mono, ui-monospace, monospace" font-size="22" fill="#8b949e">edin@edincenanovic.com: ~</text>
+  <text x="96" y="220" font-family="JetBrains Mono, ui-monospace, monospace" font-size="30" fill="#8b949e"><tspan fill="#3fb950">edin@edincenanovic.com</tspan>:<tspan fill="#58a6ff">~</tspan>$ whoami</text>
+  <text x="96" y="320" font-family="JetBrains Mono, ui-monospace, monospace" font-size="76" font-weight="700" fill="#f0f6fc">Edin Cenanovic</text>
+  <rect x="690" y="266" width="34" height="64" fill="#3fb950"/>
+  <text x="96" y="392" font-family="JetBrains Mono, ui-monospace, monospace" font-size="34" fill="#8b949e"><tspan fill="#3fb950">&gt; </tspan>Solution Architect</text>
+  <text x="96" y="500" font-family="JetBrains Mono, ui-monospace, monospace" font-size="26" fill="#8b949e">DevOps · Developer Productivity · Open Source · Cloud-Native</text>
+  <text x="96" y="552" font-family="JetBrains Mono, ui-monospace, monospace" font-size="22" fill="#58a6ff">https://edincenanovic.com</text>
+</svg>
