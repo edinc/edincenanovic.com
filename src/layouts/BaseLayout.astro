@@ -1,0 +1,66 @@
+---
+import { SITE } from "../consts";
+import BaseHead from "../components/BaseHead.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import "../styles/global.css";
+
+export interface Props {
+  title: string;
+  description?: string;
+  image?: string;
+  article?: boolean;
+  publishedTime?: Date;
+  modifiedTime?: Date;
+  tags?: string[];
+  noindex?: boolean;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+}
+
+const { title, description, image, article, publishedTime, modifiedTime, tags, noindex, jsonLd } =
+  Astro.props;
+// Compose document title: "Page · Edin Cenanovic" (home keeps just the name).
+const fullTitle =
+  title === SITE.name ? SITE.name : `${title} · ${SITE.name}`;
+---
+
+<!doctype html>
+<html lang={SITE.locale} data-theme="dark">
+  <head>
+    <BaseHead
+      title={fullTitle}
+      description={description}
+      image={image}
+      article={article}
+      publishedTime={publishedTime}
+      modifiedTime={modifiedTime}
+      tags={tags}
+      noindex={noindex}
+      jsonLd={jsonLd}
+    />
+    <!-- No-flash theme init: runs before paint to avoid a light/dark flash. -->
+    <script is:inline>
+      (() => {
+        try {
+          const stored = localStorage.getItem("theme");
+          const theme =
+            stored ||
+            (window.matchMedia("(prefers-color-scheme: light)").matches
+              ? "light"
+              : "dark");
+          document.documentElement.setAttribute("data-theme", theme);
+        } catch (_) {
+          document.documentElement.setAttribute("data-theme", "dark");
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <Header />
+    <main id="main" class="container">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

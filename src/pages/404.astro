@@ -1,0 +1,72 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { SITE } from "../consts";
+---
+
+<BaseLayout title="404 — command not found" description="Page not found." noindex={true}>
+  <section class="notfound">
+    <div class="window">
+      <div class="window__bar">
+        <span class="window__dots" aria-hidden="true">
+          <span class="window__dot window__dot--red"></span>
+          <span class="window__dot window__dot--amber"></span>
+          <span class="window__dot window__dot--green"></span>
+        </span>
+        <span class="window__title">{SITE.user}@{SITE.domain}: ~</span>
+      </div>
+      <div class="window__body">
+        <p class="prompt" aria-hidden="true">
+          <span class="prompt__user">{SITE.user}@{SITE.domain}</span><span
+            class="prompt__sep">:</span><span class="prompt__path">~</span><span
+            class="prompt__sigil">$</span>
+          <span class="prompt__cmd">cd <span class="nf-path" data-nf-path>/…</span></span>
+        </p>
+        <p class="notfound__err">
+          <span aria-hidden="true">bash: </span>cd: <span
+            class="nf-path"
+            data-nf-path>/…</span>: No such file or directory
+        </p>
+        <h1 class="notfound__code">404<span class="cursor" aria-hidden="true"></span></h1>
+        <p class="notfound__msg comment">
+          command not found — the page you requested doesn't exist.
+        </p>
+        <p>
+          <a href="/" class="notfound__home">cd ~ <span aria-hidden="true">→</span></a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <script is:inline>
+    // Show the path the visitor actually requested (static 404 is served for
+    // any unknown URL). Decorative-only, so it stays aria-hidden.
+    (() => {
+      const path = window.location.pathname + window.location.search;
+      document.querySelectorAll("[data-nf-path]").forEach((el) => {
+        el.textContent = path;
+      });
+    })();
+  </script>
+</BaseLayout>
+
+<style>
+  .notfound {
+    margin-top: var(--sp-4);
+  }
+  .notfound__err {
+    color: var(--red);
+    margin: 0 0 var(--sp-6);
+  }
+  .notfound__code {
+    margin: 0;
+    font-size: clamp(3rem, 14vw, 6rem);
+    line-height: 1;
+    color: var(--text-strong);
+  }
+  .notfound__msg {
+    margin: var(--sp-3) 0 var(--sp-6);
+  }
+  .notfound__home {
+    color: var(--green);
+  }
+</style>

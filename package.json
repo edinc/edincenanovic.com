@@ -1,0 +1,33 @@
+{
+  "name": "edincenanovic-com",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Terminal-themed personal site for Edin Cenanovic, built from scratch with Astro.",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "check": "astro check",
+    "test": "vitest run && playwright test",
+    "test:unit": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "@astrojs/mdx": "^4.2.6",
+    "@astrojs/rss": "^4.0.11",
+    "@astrojs/sitemap": "^3.4.0",
+    "@fontsource-variable/jetbrains-mono": "^5.2.5",
+    "astro": "^5.8.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.4",
+    "@playwright/test": "^1.60.0",
+    "@vitest/coverage-v8": "^4.1.8",
+    "typescript": "^5.8.3",
+    "vitest": "^4.1.8"
+  }
+}

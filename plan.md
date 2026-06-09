@@ -88,27 +88,41 @@ Nav: `home`, `blog` (+ theme toggle). Footer: social row + "built with Astro, ho
 
 ```
 /
-├── .github/workflows/deploy.yml      # [STAGE B] GitHub Pages via Actions
+├── .github/
+│   ├── copilot-instructions.md       # project context + conventions (auto-loaded by Copilot)
+│   └── workflows/
+│       ├── ci.yml                    # [STAGE B] test on push & PR (B0)
+│       └── deploy.yml                # [STAGE B] GitHub Pages via Actions
+├── AGENTS.md                         # authoritative agent operating manual (workflow, reviews, testing)
 ├── .gitignore
 ├── astro.config.mjs                  # site URL, mdx + sitemap, shiki highlight
 ├── package.json
 ├── tsconfig.json
-├── README.md                         # theme + authoring + deploy docs
+├── vitest.config.ts                  # unit-test config (getViteConfig)
+├── playwright.config.ts              # E2E config (preview on :4322)
+├── README.md                         # [STAGE B] authoring + deploy docs (currently a stub)
 ├── public/
 │   ├── favicon.svg                   # terminal-prompt glyph
-│   ├── CNAME                         # [STAGE B] edincenanovic.com
-│   └── robots.txt                    # [STAGE B]
+│   ├── og-default.svg                # default Open Graph image
+│   ├── robots.txt
+│   └── CNAME                         # [STAGE B] edincenanovic.com
+├── test/
+│   ├── unit/                         # Vitest specs for src/lib (nav, date, posts, seo)
+│   └── e2e/                          # Playwright regression specs (layout, seo, theme)
 └── src/
     ├── consts.ts                     # SITE config: name, bio, role, socials, nav, repo
     ├── content.config.ts             # blog collection + Zod schema
+    ├── assets/edin.jpg               # portrait (optimized via <Image>)
+    ├── lib/                          # pure, unit-tested logic: nav, date, posts, seo
     ├── styles/global.css             # design tokens + terminal styles
     ├── components/
-    │   ├── BaseHead.astro            # meta/SEO/OpenGraph/canonical
+    │   ├── BaseHead.astro            # meta/SEO/OpenGraph/canonical/JSON-LD
     │   ├── Header.astro              # sticky nav + theme toggle
     │   ├── Footer.astro
     │   ├── Prompt.astro              # reusable `$ command` line
     │   ├── ThemeToggle.astro         # dark/light + no-flash script
     │   ├── SocialLinks.astro
+    │   ├── FormattedDate.astro       # <time> formatter (uses lib/date)
     │   └── PostCard.astro
     ├── layouts/
     │   ├── BaseLayout.astro
@@ -209,7 +223,13 @@ still locally, before any deployment.
 - `npm run build` clean; preview via `astro preview` / browser canvas; keyboard nav + both themes + responsive spot-check.
 - **AC:** clean build, no console errors, AA contrast in both themes.
 
+#### A6 — Testing & agent governance (hardening, local)
+- Extract pure logic to `src/lib/` (nav, date, posts, seo); add **Vitest** unit tests + a **Playwright** E2E regression suite (`test/unit`, `test/e2e`); add `npm test` scripts.
+- Add `.github/copilot-instructions.md` + `AGENTS.md` codifying the mandatory workflow (feature branch → tests → 3 independent reviews → no regressions).
+- **AC:** `npm run check`, `npm run build`, `npm run test` all green (0/0); instruction files in place. _(CI to run these automatically on push/PR is **B0**, Stage B.)_
+
 ### ✅ APPROVAL GATE — design sign-off
+> **Status:** Stage A (A0–A6) is **complete** and the design is signed off. Stage B is **not yet authorized** — it begins only on an explicit "let's deploy."
 > **Nothing below this line starts until you say "I like it, let's deploy."**
 > Up to this point the repo contains only source code that runs locally; there are **no**
 > workflows, no `CNAME`, no DNS, and nothing is published anywhere.
@@ -217,6 +237,12 @@ still locally, before any deployment.
 ---
 
 ### STAGE B — Deployment & automation  _(only after sign-off)_
+
+#### B0 — Continuous integration (test on push & PR)
+- Add `.github/workflows/ci.yml` triggered on `push` and `pull_request`. Steps: checkout → `actions/setup-node` (Node 20, npm cache) → `npm ci` → `npm run check` → `npm run build` → `npm run test:unit` → `npx playwright install --with-deps chromium` → `npm run test:e2e`. Mirrors the local gate in `AGENTS.md` (§1, §4) so CI enforces the same green bar.
+- Make the check **required** on `main` via branch protection so red CI blocks merge — enforces the "no regressions" rule.
+- _Optional (nice-to-have):_ report results back to the PR — upload the Playwright HTML report as an artifact and post a summary comment (e.g. `dorny/test-reporter` or a sticky-comment action). Defer if it adds noise.
+- **AC:** every push and PR runs check + build + unit + e2e; a failing run blocks merge to `main`; (optional) the PR shows a test-results summary.
 
 #### B1 — Deploy config & docs
 - Add `.github/workflows/deploy.yml`, `public/CNAME`, `public/robots.txt`; rewrite `README.md` (authoring + deploy + customization docs). Set Pages source → "GitHub Actions".
@@ -230,10 +256,25 @@ still locally, before any deployment.
 - Sanity-check the live URL: Lighthouse, links, RSS, sitemap, both themes, social/OG previews.
 - **AC:** live site matches local; no regressions.
 
+#### B4 — Analytics & monitoring (lightweight)
+- **Visitor analytics:** **Cloudflare Web Analytics** — free, cookieless (no consent banner), a single `<script>` beacon that works on GitHub Pages. Dashboard shows visitors, page views, top pages, referrers, and **countries / devices / browsers / OS** (plus Core Web Vitals). Exactly the "who's visiting" view, nothing heavier.
+- **SEO/search (optional, free):** **Google Search Console** for search queries, impressions, CTR & indexing — one-time domain verification; add only if you want the discoverability/marketing angle.
+- **Performance (optional):** **Lighthouse CI** (`treosh/lighthouse-ci-action`) in the PR pipeline as a regression guard — only if desired; otherwise the manual Lighthouse pass in B3 is enough.
+- **GA4:** skip — heavy, needs a consent banner, overkill for this site.
+- **AC:** Cloudflare Web Analytics is live and reporting visitors/countries/devices; stays cookieless with no consent banner; site stays JS-light (single beacon).
+
+#### B5 — README finalization, licensing & status badges
+- Once CI + deploy + domain are live, **rewrite `README.md`** (currently a stub): what the site is, the stack, local dev (`npm run dev`/`build`/`test`), how to add a post, how to change config (`consts.ts`), and the deploy flow. Cross-link `AGENTS.md` + `.github/copilot-instructions.md`.
+- **Licensing (split):** code under **MIT** (`LICENSE`); blog content/images under **CC BY-NC-ND 4.0** (others may share **with credit**, but no commercial use and no derivatives) via a `LICENSE-content` or a clear README note. Protects the writing as IP while keeping the code reusable.
+- **Status badges** (shields.io, under the title): **CI** (Actions `ci.yml`), **Deploy/Pages** (Actions `deploy.yml`), **live site**, **Lighthouse score** (from Lighthouse CI), **license**, **"Built with Astro"** — plus any that make sense (last-commit, Node version).
+- **AC:** README documents authoring + deploy in <5 steps; licenses present and stated; badges render and link to the right runs/site.
+
 ---
 
 ## 10. Verification & Quality Gates
 - **Build:** `npm run build` is the primary gate after each phase.
+- **Tests:** `npm run test` (Vitest unit + Playwright E2E) must pass; new behavior ships with tests, fixed bugs ship with a regression test.
+- **CI (Stage B, see B0):** the gate (`check` + `build` + `test`) runs automatically on every push & PR and blocks merge to `main` when red.
 - **Visual:** preview via browser canvas (responsive + both themes).
 - **A11y:** keyboard-only pass, focus visibility, contrast, reduced-motion; confirm decorative prompt/cursor glyphs are ignored by screen readers.
 - **SEO:** title/description/OG/canonical per page; sitemap + RSS present.
@@ -243,7 +284,7 @@ still locally, before any deployment.
 ## 11. Future Enhancements (post-v1)
 - Comments: **giscus** (GitHub Discussions) or **utterances** (Issues) — no DB.
 - Search: **Pagefind** (static) once there are several posts.
-- Analytics: GoatCounter / Plausible CE / Cloudflare Web Analytics (privacy-friendly).
+- Analytics & monitoring: see **B4** (Cloudflare Web Analytics — visitors/countries/devices, free & cookieless; Search Console + Lighthouse CI optional).
 - Per-post dynamic OG images; tag archive pages; reading time.
 
 ---

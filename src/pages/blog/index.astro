@@ -1,0 +1,66 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Prompt from "../../components/Prompt.astro";
+import PostCard from "../../components/PostCard.astro";
+import { byPubDateDesc, isVisible } from "../../lib/posts";
+
+const isProd = import.meta.env.PROD;
+const posts = (await getCollection("blog", (entry) => isVisible(entry, isProd))).sort(
+  byPubDateDesc
+);
+---
+
+<BaseLayout title="blog" description="Notes on DevOps, developer productivity, open source and cloud-native.">
+  <section>
+    <Prompt command="ls -la ~/posts" path="~/blog" cursor={posts.length === 0} />
+    <h1 class="page-title">blog</h1>
+    <p class="comment page-intro">
+      {posts.length}
+      {posts.length === 1 ? "entry" : "entries"} — DevOps, developer
+      productivity, open source &amp; cloud-native.
+    </p>
+
+    {
+      posts.length === 0 ? (
+        <p class="empty">No posts yet. Check back soon.</p>
+      ) : (
+        <ul class="post-list" role="list">
+          {posts.map((post) => (
+            <li>
+              <PostCard
+                title={post.data.title}
+                description={post.data.description}
+                pubDate={post.data.pubDate}
+                tags={post.data.tags}
+                url={`/blog/${post.id}/`}
+                headingLevel={2}
+              />
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </section>
+</BaseLayout>
+
+<style>
+  .page-title {
+    margin: var(--sp-2) 0 var(--sp-2);
+    font-size: clamp(1.8rem, 5vw, 2.4rem);
+  }
+  .page-intro {
+    margin: 0 0 var(--sp-8);
+    font-size: 0.95rem;
+  }
+  .post-list {
+    display: grid;
+    gap: var(--sp-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .empty {
+    color: var(--text-muted);
+  }
+</style>

@@ -1,0 +1,124 @@
+---
+import { NAV, SITE } from "../consts";
+import ThemeToggle from "./ThemeToggle.astro";
+import { isActive } from "../lib/nav";
+
+const pathname = Astro.url.pathname;
+---
+
+<header class="site-header">
+  <div class="container site-header__inner">
+    <a class="brand" href="/" aria-label={`${SITE.name} — home`}>
+      <span class="brand__sigil" aria-hidden="true">$</span>
+      <span class="brand__name">{SITE.user}@{SITE.domain}</span>
+    </a>
+
+    <nav class="nav" aria-label="Primary">
+      <ul class="nav__list">
+        {
+          NAV.map((item) => (
+            <li>
+              <a
+                href={item.href}
+                class:list={["nav__link", { "nav__link--active": isActive(pathname, item.href) }]}
+                aria-current={isActive(pathname, item.href) ? "page" : undefined}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <ThemeToggle />
+    </nav>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: color-mix(in srgb, var(--bg) 85%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+  }
+  .site-header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-4);
+    min-height: 60px;
+  }
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sp-2);
+    min-width: 0;
+    color: var(--text-strong);
+    font-weight: 700;
+    font-size: 0.95rem;
+  }
+  .brand:hover {
+    text-decoration: none;
+  }
+  .brand__sigil {
+    color: var(--green);
+  }
+  .brand__name {
+    color: var(--text-strong);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .nav {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-4);
+    flex: none;
+  }
+  .nav__list {
+    display: flex;
+    align-items: center;
+    gap: var(--sp-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .nav__link {
+    display: inline-block;
+    padding: var(--sp-1) var(--sp-3);
+    border-radius: var(--radius);
+    color: var(--text-muted);
+    font-size: 0.95rem;
+  }
+  .nav__link::before {
+    content: "";
+    color: var(--text-muted);
+  }
+  .nav__link:hover {
+    color: var(--text-strong);
+    background: var(--bg-elev);
+    text-decoration: none;
+  }
+  .nav__link--active {
+    color: var(--green);
+  }
+  .nav__link--active::before {
+    content: "./";
+    color: var(--text-muted);
+    opacity: 0.7;
+  }
+
+  @media (max-width: 420px) {
+    .site-header__inner {
+      gap: var(--sp-2);
+    }
+    .nav {
+      gap: var(--sp-2);
+    }
+    .nav__link {
+      padding: var(--sp-1) var(--sp-2);
+    }
+  }
+</style>

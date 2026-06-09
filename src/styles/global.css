@@ -1,0 +1,339 @@
+/* =========================================================================
+   global.css — design tokens + terminal aesthetic
+   Authored from scratch. Plain CSS + custom properties (no framework).
+   ========================================================================= */
+
+@import "@fontsource-variable/jetbrains-mono";
+
+/* ---------- Design tokens ---------- */
+:root {
+  /* Type */
+  --font-mono: "JetBrains Mono Variable", ui-monospace, SFMono-Regular,
+    "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --fs-base: 1rem;
+  --lh-base: 1.65;
+  --measure: 74ch;
+
+  /* Spacing scale */
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-6: 1.5rem;
+  --sp-8: 2rem;
+  --sp-12: 3rem;
+  --sp-16: 4rem;
+
+  --radius: 8px;
+  --maxw: 880px;
+
+  /* Dark theme (default) — GitHub-like, accessible. */
+  --bg: #0d1117;
+  --bg-elev: #161b22;
+  --bg-inset: #010409;
+  --text: #c9d1d9;
+  --text-strong: #f0f6fc;
+  --text-muted: #8b949e;
+  --border: #30363d;
+
+  --green: #3fb950;
+  --blue: #58a6ff;
+  --amber: #d29922;
+  --red: #f85149;
+  --magenta: #bc8cff;
+  --cyan: #39c5cf;
+
+  --link: var(--blue);
+  --prompt: var(--green);
+  --accent: var(--green);
+
+  --shadow: 0 8px 24px rgba(1, 4, 9, 0.5);
+  --focus: var(--amber);
+}
+
+/* Light theme overrides */
+[data-theme="light"] {
+  --bg: #ffffff;
+  --bg-elev: #f6f8fa;
+  --bg-inset: #eaeef2;
+  --text: #1f2328;
+  --text-strong: #010409;
+  --text-muted: #59636e;
+  --border: #d1d9e0;
+
+  --green: #1a7f37;
+  --blue: #0969da;
+  --amber: #9a6700;
+  --red: #cf222e;
+  --magenta: #8250df;
+  --cyan: #1b7c83;
+
+  --shadow: 0 8px 24px rgba(31, 35, 40, 0.12);
+  --focus: #0969da;
+}
+
+/* ---------- Reset / base ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: var(--fs-base);
+  line-height: var(--lh-base);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+img,
+svg {
+  max-width: 100%;
+  height: auto;
+}
+
+a {
+  color: var(--link);
+  text-decoration: none;
+  text-underline-offset: 3px;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  color: var(--text-strong);
+  line-height: 1.25;
+  font-weight: 700;
+}
+
+p {
+  max-width: var(--measure);
+}
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  background: var(--bg-inset);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.1em 0.4em;
+}
+
+pre {
+  background: var(--bg-inset);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--sp-4);
+  overflow-x: auto;
+}
+pre code {
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: var(--sp-8) 0;
+}
+
+/* ---------- Layout ---------- */
+.container {
+  width: 100%;
+  max-width: var(--maxw);
+  margin-inline: auto;
+  padding-inline: var(--sp-4);
+}
+
+main {
+  flex: 1 0 auto;
+  width: 100%;
+  padding-block: var(--sp-8) var(--sp-16);
+}
+
+/* ---------- Accessibility helpers ---------- */
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: var(--sp-2);
+  z-index: 100;
+  background: var(--accent);
+  color: var(--bg);
+  padding: var(--sp-2) var(--sp-4);
+  border-radius: var(--radius);
+  font-weight: 700;
+}
+.skip-link:focus {
+  left: var(--sp-2);
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- Terminal primitives ---------- */
+
+/* A reusable shell prompt line: user@host:~$ command */
+.prompt {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 var(--sp-2);
+  font-size: 0.95rem;
+  color: var(--text-muted);
+}
+.prompt__user {
+  color: var(--prompt);
+  font-weight: 700;
+}
+.prompt__sep {
+  color: var(--text-muted);
+}
+.prompt__path {
+  color: var(--blue);
+}
+.prompt__sigil {
+  color: var(--text-muted);
+}
+.prompt__cmd {
+  color: var(--text-strong);
+  font-weight: 600;
+}
+
+/* Blinking block cursor */
+.cursor {
+  display: inline-block;
+  width: 0.6em;
+  height: 1.05em;
+  margin-left: 0.15em;
+  translate: 0 0.18em;
+  background: var(--accent);
+  animation: blink 1.05s steps(1) infinite;
+}
+@keyframes blink {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  50.01%,
+  100% {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cursor {
+    animation: none;
+  }
+}
+
+/* Terminal window card with traffic-light chrome */
+.window {
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.window__bar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--bg-inset);
+  border-bottom: 1px solid var(--border);
+}
+.window__dots {
+  display: flex;
+  gap: var(--sp-2);
+}
+.window__dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--text-muted);
+}
+.window__dot--red {
+  background: var(--red);
+}
+.window__dot--amber {
+  background: var(--amber);
+}
+.window__dot--green {
+  background: var(--green);
+}
+.window__title {
+  margin-left: var(--sp-2);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+.window__body {
+  padding: var(--sp-6);
+}
+
+/* A "command" section header: $ ls ~/socials */
+.cmd-heading {
+  margin: 0 0 var(--sp-4);
+  font-size: 1.05rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.cmd-heading .sigil {
+  color: var(--green);
+  user-select: none;
+}
+.cmd-heading .name {
+  color: var(--text-strong);
+}
+
+section + section {
+  margin-top: var(--sp-12);
+}
+
+/* ---------- Comment-style output (for muted helper text) ---------- */
+.comment {
+  color: var(--text-muted);
+}
+.comment::before {
+  content: "# ";
+}
