@@ -62,5 +62,5 @@ jobs:
           check_name: Test results
           comment_mode: always
           files: |
-            test-results/vitest-junit.xml
-            test-results/playwright-junit.xml
+            reports/vitest-junit.xml
+            reports/playwright-junit.xml

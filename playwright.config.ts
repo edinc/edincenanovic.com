@@ -11,8 +11,10 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   // In CI: GitHub annotations for inline failures + JUnit XML so the workflow
   // can publish a test-results summary comment on the PR.
+  // JUnit goes to reports/ (NOT test-results/, which Playwright wipes on start,
+  // so the vitest report written by the earlier CI step survives).
   reporter: process.env.CI
-    ? [["github"], ["junit", { outputFile: "test-results/playwright-junit.xml" }]]
+    ? [["github"], ["junit", { outputFile: "reports/playwright-junit.xml" }]]
     : "list",
   use: {
     baseURL: `http://localhost:${PORT}`,
