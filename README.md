@@ -95,25 +95,44 @@ every push and pull request.
 
 Hosted on **GitHub Pages**, deployed by GitHub Actions
 ([`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)) on every push to
-`main`.
+`main`. Requires a **public** repo (GitHub Free) or GitHub Pro for private Pages.
 
-**One-time setup** (repo maintainer):
+Deployment happens in two phases, controlled by the `DEPLOY_TARGET` build env in
+`astro.config.mjs`:
 
-1. **Enable Pages:** repo **Settings → Pages → Build and deployment → Source =
-   "GitHub Actions"**.
-2. **Custom domain DNS** (at your registrar) — *not configured yet*. The
-   [`public/CNAME`](public/CNAME) file pins the site to `edincenanovic.com`, but
-   it won't resolve until you add:
-   - apex `A`/`AAAA` records → the [GitHub Pages IP addresses][pages-apex], and a
-     `www` `CNAME` → `edinc.github.io`;
-   - then enable **Settings → Pages → Enforce HTTPS** once the certificate is
-     issued.
-   Keep the existing site live until DNS propagates.
+### Phase 1 — temporary project URL (current)
+
+The deploy workflow sets `DEPLOY_TARGET=project`, which builds with
+`site: https://edinc.github.io` and `base: /edincenanovic.com` and publishes to
+the GitHub Pages **project URL**:
+
+```
+https://edinc.github.io/edincenanovic.com/
+```
+
+This lets us verify the live pipeline before touching DNS. No `CNAME` is shipped
+in this phase. **One-time setup:** repo **Settings → Pages → Build and deployment
+→ Source = "GitHub Actions"**.
+
+### Phase 2 — custom domain cutover (later)
+
+When the design is verified on the project URL:
+
+1. Remove `DEPLOY_TARGET` from `deploy.yml` (the default build targets the apex
+   domain root: `site: https://edincenanovic.com`, no `base`).
+2. Add `public/CNAME` containing `edincenanovic.com` (served from `/`).
+3. At your registrar, add apex `A`/`AAAA` records → the
+   [GitHub Pages IP addresses][pages-apex] and a `www` `CNAME` →
+   `edinc.github.io`; keep the existing site live until DNS propagates.
+4. Enable **Settings → Pages → Enforce HTTPS** once the certificate is issued.
+
+Apply these via a PR and merge to `main`; each push re-runs the deploy workflow.
 
 [pages-apex]: https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site#configuring-an-apex-domain
 
-Until DNS is cut over, the build still publishes via Actions; only the custom
-domain is pending.
+> Internal links and `public/` asset references use the `withBase()` helper
+> (`src/lib/url.ts`) so they resolve correctly under both the project sub-path
+> and the apex root.
 
 ## Contributing & agents
 

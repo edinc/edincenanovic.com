@@ -4,6 +4,7 @@ import FormattedDate from "../components/FormattedDate.astro";
 import Prompt from "../components/Prompt.astro";
 import { SITE } from "../consts";
 import { blogPostingSchema } from "../lib/seo";
+import { withBase } from "../lib/url";
 
 export interface Props {
   title: string;
@@ -15,7 +16,7 @@ export interface Props {
 
 const { title, description, pubDate, updatedDate, tags = [] } = Astro.props;
 
-const origin = Astro.site?.href ?? "https://edincenanovic.com/";
+const origin = new URL(import.meta.env.BASE_URL, Astro.site ?? "https://edincenanovic.com/").href;
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
 const jsonLd = blogPostingSchema({
   title,
@@ -68,7 +69,7 @@ const jsonLd = blogPostingSchema({
     </div>
 
     <footer class="post__footer">
-      <a class="post__back" href="/blog">
+      <a class="post__back" href={withBase("/blog")}>
         <span aria-hidden="true">cd</span> ../blog
       </a>
     </footer>

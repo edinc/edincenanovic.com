@@ -67,6 +67,10 @@ all pass with **0 errors / 0 warnings**.
   skip-link contrast ≥ AA, keep tap targets reasonable, prefer semantic HTML.
 - **SEO**: canonical URLs, JSON-LD (via `src/lib/seo.ts`), and `name=`-based
   Twitter meta are load-bearing — covered by E2E tests.
+- **Internal links & `public/` assets** must be base-path aware: wrap
+  root-relative paths in `withBase()` (`src/lib/url.ts`) instead of hardcoding
+  `href="/…"`, so they resolve under both the apex root and the temporary Pages
+  project sub-path (`DEPLOY_TARGET=project`; see README "Deployment").
 - Keep client JS minimal and inline only where needed (theme no-flash, 404 path,
   copy buttons). No frameworks.
 

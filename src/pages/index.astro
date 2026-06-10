@@ -9,13 +9,14 @@ import { SITE, SOCIALS } from "../consts";
 import portrait from "../assets/edin.jpg";
 import { byPubDateDesc, isVisible } from "../lib/posts";
 import { personWebSiteGraph } from "../lib/seo";
+import { withBase } from "../lib/url";
 
 const isProd = import.meta.env.PROD;
 const posts = (await getCollection("blog", (entry) => isVisible(entry, isProd)))
   .sort(byPubDateDesc)
   .slice(0, 3);
 
-const origin = Astro.site?.href ?? "https://edincenanovic.com/";
+const origin = new URL(import.meta.env.BASE_URL, Astro.site ?? "https://edincenanovic.com/").href;
 const jsonLd = personWebSiteGraph(
   origin,
   SITE,
@@ -105,13 +106,13 @@ const jsonLd = personWebSiteGraph(
                 description={post.data.description}
                 pubDate={post.data.pubDate}
                 tags={post.data.tags}
-                url={`/blog/${post.id}/`}
+                url={withBase(`/blog/${post.id}/`)}
               />
             </li>
           ))}
         </ul>
         <p class="post-list__all">
-          <a href="/blog">cd ~/posts <span aria-hidden="true">→</span></a>
+          <a href={withBase("/blog")}>cd ~/posts <span aria-hidden="true">→</span></a>
         </p>
       </section>
     )

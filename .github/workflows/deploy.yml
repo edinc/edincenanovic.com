@@ -24,6 +24,11 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    # TEMPORARY: publish to the GitHub Pages project URL
+    # (https://edinc.github.io/edincenanovic.com/) to verify before the DNS
+    # cutover. At cutover, remove this env and re-add public/CNAME (see README).
+    env:
+      DEPLOY_TARGET: project
     steps:
       - name: Checkout
         uses: actions/checkout@v4

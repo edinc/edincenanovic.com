@@ -2,13 +2,16 @@
 import { NAV, SITE } from "../consts";
 import ThemeToggle from "./ThemeToggle.astro";
 import { isActive } from "../lib/nav";
+import { withBase, withoutBase } from "../lib/url";
 
-const pathname = Astro.url.pathname;
+// `Astro.url.pathname` includes the configured base; strip it so the comparison
+// against the root-relative NAV hrefs is correct under a project sub-path too.
+const pathname = withoutBase(Astro.url.pathname);
 ---
 
 <header class="site-header">
   <div class="container site-header__inner">
-    <a class="brand" href="/" aria-label={`${SITE.name} — home`}>
+    <a class="brand" href={withBase("/")} aria-label={`${SITE.name} — home`}>
       <span class="brand__sigil" aria-hidden="true">$</span>
       <span class="brand__name">{SITE.user}@{SITE.domain}</span>
     </a>
@@ -19,7 +22,7 @@ const pathname = Astro.url.pathname;
           NAV.map((item) => (
             <li>
               <a
-                href={item.href}
+                href={withBase(item.href)}
                 class:list={["nav__link", { "nav__link--active": isActive(pathname, item.href) }]}
                 aria-current={isActive(pathname, item.href) ? "page" : undefined}
               >
