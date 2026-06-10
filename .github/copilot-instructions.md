@@ -53,6 +53,12 @@ npm run test:e2e   # Playwright only (builds + previews on 4322)
 A change is "green" only when `npm run check`, `npm run build`, and `npm run test`
 all pass with **0 errors / 0 warnings**.
 
+CI (`.github/workflows/ci.yml`) runs this same gate on every push and PR, and
+posts a sticky **test-results table** comment on the PR via
+`scripts/test-report.mjs` (which parses the vitest + Playwright JUnit reports in
+`reports/`). Keep the `<!-- ci-test-results -->` marker in the comment body so it
+updates in place instead of duplicating.
+
 ## Conventions
 
 - **Content lives in `src/consts.ts`** (name, role, bio, socials, nav, SITE
