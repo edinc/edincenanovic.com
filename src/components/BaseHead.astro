@@ -1,6 +1,7 @@
 ---
-import { SITE, FEATURES } from "../consts";
+import { SITE, FEATURES, ANALYTICS } from "../consts";
 import { withBase } from "../lib/url";
+import { cloudflareBeaconToken } from "../lib/analytics";
 
 export interface Props {
   title: string;
@@ -35,6 +36,12 @@ const {
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const socialImage = new URL(withBase(image), Astro.site);
+
+// Cloudflare Web Analytics: cookieless beacon, production builds only.
+const beaconToken = cloudflareBeaconToken(
+  ANALYTICS.cloudflareToken,
+  import.meta.env.PROD
+);
 ---
 
 <meta charset="utf-8" />
@@ -100,6 +107,18 @@ const socialImage = new URL(withBase(image), Astro.site);
       type="application/ld+json"
       is:inline
       set:html={JSON.stringify(jsonLd).replace(/</g, "\\u003c")}
+    />
+  )
+}
+
+{/* Cloudflare Web Analytics — cookieless, production builds only. */}
+{
+  beaconToken && (
+    <script
+      is:inline
+      defer
+      src="https://static.cloudflareinsights.com/beacon.min.js"
+      data-cf-beacon={JSON.stringify({ token: beaconToken })}
     />
   )
 }

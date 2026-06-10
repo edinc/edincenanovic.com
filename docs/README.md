@@ -7,6 +7,8 @@ local setup, see the [root README](../README.md).
   copy, bio, social links and design tokens.
 - **[Deployment & custom domain](deployment.md)** — how the site ships to GitHub
   Pages, the `DEPLOY_TARGET` build toggle, and the custom-domain / DNS setup.
+- **[Analytics & monitoring](analytics.md)** — privacy-friendly, cookieless
+  visitor analytics with Cloudflare Web Analytics.
 
 For the contributor workflow (feature branch → tests → three independent reviews
 → no regressions), see [`AGENTS.md`](../AGENTS.md) and
