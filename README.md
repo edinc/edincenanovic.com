@@ -16,7 +16,7 @@ Presentation-first today, blog-ready by design.
 - **[Astro 5](https://astro.build)** (`output: "static"`) + **TypeScript** (strict)
 - **Plain CSS** with custom-property design tokens — no Tailwind/UI framework
 - **Content collections** (Markdown/MDX) for the blog, validated with **Zod**
-- `@astrojs/rss`, `@astrojs/sitemap`, `@astrojs/mdx`
+- `@astrojs/rss` (blog RSS, when enabled), `@astrojs/sitemap`, `@astrojs/mdx`
 - **JetBrains Mono** via `@fontsource-variable` (self-hosted)
 - Tests: **Vitest** (unit) + **Playwright** (E2E)
 
@@ -69,6 +69,12 @@ full project map and conventions.
    ```
 3. `npm run dev` to preview. Set `draft: true` to keep it out of production
    builds. That's the entire workflow — no database, no CMS.
+
+> **The blog is currently hidden.** `FEATURES.blog` in
+> [`src/consts.ts`](src/consts.ts) is `false`, which hides the blog everywhere
+> (nav link, the home "latest posts" section, `/blog`, `/blog/<slug>`, the RSS
+> feed, and the sitemap). Flip it to `true` to surface the blog — posts you add
+> now will appear automatically once it's enabled.
 
 ## Change site content
 

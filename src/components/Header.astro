@@ -1,12 +1,13 @@
 ---
-import { NAV, SITE } from "../consts";
+import { NAV, SITE, FEATURES } from "../consts";
 import ThemeToggle from "./ThemeToggle.astro";
-import { isActive } from "../lib/nav";
+import { isActive, visibleNav } from "../lib/nav";
 import { withBase, withoutBase } from "../lib/url";
 
 // `Astro.url.pathname` includes the configured base; strip it so the comparison
 // against the root-relative NAV hrefs is correct under a project sub-path too.
 const pathname = withoutBase(Astro.url.pathname);
+const items = visibleNav(NAV, FEATURES);
 ---
 
 <header class="site-header">
@@ -19,7 +20,7 @@ const pathname = withoutBase(Astro.url.pathname);
     <nav class="nav" aria-label="Primary">
       <ul class="nav__list">
         {
-          NAV.map((item) => (
+          items.map((item) => (
             <li>
               <a
                 href={withBase(item.href)}

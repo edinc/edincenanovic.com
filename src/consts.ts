@@ -17,9 +17,21 @@ export interface SocialLink {
   icon: string;
 }
 
+/**
+ * Feature flags for progressively-revealed sections. Flip a flag to `true` to
+ * surface that section everywhere at once (nav, home, routes, feed, sitemap);
+ * flip it back to hide it without deleting any code.
+ */
+export const FEATURES: Record<"blog", boolean> = {
+  /** Blog: nav link, home "latest posts", /blog, /blog/<slug>, and RSS feed. */
+  blog: false,
+};
+
 export interface NavItem {
   label: string;
   href: string;
+  /** Show this item only when the named feature flag is enabled. */
+  feature?: keyof typeof FEATURES;
 }
 
 export const SITE = {
@@ -46,7 +58,7 @@ export const SITE = {
 
 export const NAV: NavItem[] = [
   { label: "home", href: "/" },
-  { label: "blog", href: "/blog" },
+  { label: "blog", href: "/blog", feature: "blog" },
 ];
 
 export const SOCIALS: SocialLink[] = [

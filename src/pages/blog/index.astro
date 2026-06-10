@@ -5,6 +5,11 @@ import Prompt from "../../components/Prompt.astro";
 import PostCard from "../../components/PostCard.astro";
 import { byPubDateDesc, isVisible } from "../../lib/posts";
 import { withBase } from "../../lib/url";
+import { FEATURES } from "../../consts";
+
+if (!FEATURES.blog) {
+  return Astro.redirect(withBase("/"));
+}
 
 const isProd = import.meta.env.PROD;
 const posts = (await getCollection("blog", (entry) => isVisible(entry, isProd))).sort(

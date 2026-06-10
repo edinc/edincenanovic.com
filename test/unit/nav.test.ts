@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { isActive } from "../../src/lib/nav";
+import { isActive, visibleNav } from "../../src/lib/nav";
 import { stripBasePath } from "../../src/lib/url";
+import type { NavItem } from "../../src/consts";
 
 describe("isActive", () => {
   it("matches home only on the exact root", () => {
@@ -37,5 +38,25 @@ describe("isActive under a project base path", () => {
     expect(isActive(stripBasePath(base, "/edincenanovic.com/blog/hello/"), "/blog")).toBe(
       true
     );
+  });
+});
+
+describe("visibleNav", () => {
+  const nav: NavItem[] = [
+    { label: "home", href: "/" },
+    { label: "blog", href: "/blog", feature: "blog" },
+  ];
+
+  it("hides items whose feature flag is off", () => {
+    expect(visibleNav(nav, { blog: false }).map((i) => i.label)).toEqual(["home"]);
+  });
+
+  it("shows items whose feature flag is on", () => {
+    expect(visibleNav(nav, { blog: true }).map((i) => i.label)).toEqual(["home", "blog"]);
+  });
+
+  it("always shows items without a feature, regardless of flags", () => {
+    const homeOnly = [{ label: "home", href: "/" }];
+    expect(visibleNav(homeOnly, {}).map((i) => i.label)).toEqual(["home"]);
   });
 });

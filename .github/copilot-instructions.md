@@ -71,6 +71,9 @@ all pass with **0 errors / 0 warnings**.
   root-relative paths in `withBase()` (`src/lib/url.ts`) instead of hardcoding
   `href="/…"`, so they resolve under both the apex root and the temporary Pages
   project sub-path (`DEPLOY_TARGET=project`; see README "Deployment").
+- **Feature flags** live in `src/consts.ts` `FEATURES` (e.g. `blog`). One flag
+  gates a whole section across nav, home, routes, feed and sitemap — flip it to
+  show/hide rather than deleting code.
 - Keep client JS minimal and inline only where needed (theme no-flash, 404 path,
   copy buttons). No frameworks.
 
