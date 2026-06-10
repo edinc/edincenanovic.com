@@ -52,37 +52,6 @@ public/              Static assets served as-is (CNAME, robots.txt, favicon, …
 See [`.github/copilot-instructions.md`](.github/copilot-instructions.md) for the
 full project map and conventions.
 
-## Add a blog post
-
-1. Create `src/content/blog/my-post.md` (the filename becomes the URL slug).
-2. Add front matter:
-   ```md
-   ---
-   title: "My post title"
-   description: "One-line summary for cards, SEO and RSS."
-   pubDate: 2026-06-10
-   tags: ["devops", "astro"]
-   draft: false
-   ---
-
-   Your Markdown content here.
-   ```
-3. `npm run dev` to preview. Set `draft: true` to keep it out of production
-   builds. That's the entire workflow — no database, no CMS.
-
-> **The blog is currently hidden.** `FEATURES.blog` in
-> [`src/consts.ts`](src/consts.ts) is `false`, which hides the blog everywhere
-> (nav link, the home "latest posts" section, `/blog`, `/blog/<slug>`, the RSS
-> feed, and the sitemap). Flip it to `true` to surface the blog — posts you add
-> now will appear automatically once it's enabled.
-
-## Change site content
-
-All copy — name, role, bio, social links, nav, and site metadata — lives in
-[`src/consts.ts`](src/consts.ts). Edit that one file; components stay
-presentational. Design tokens (colors, spacing, widths) are CSS custom
-properties in [`src/styles/global.css`](src/styles/global.css).
-
 ## Testing
 
 ```bash
@@ -97,45 +66,14 @@ A change is "green" only when `npm run check`, `npm run build`, and
 ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs the same gate on
 every push and pull request.
 
-## Deployment
+## Documentation
 
-Hosted on **GitHub Pages**, deployed by GitHub Actions
-([`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)) on every push to
-`main`. Requires a **public** repo (GitHub Free) or GitHub Pro for private Pages.
+Task guides live in [`docs/`](docs/):
 
-The build target is controlled by the `DEPLOY_TARGET` env in `astro.config.mjs`.
-
-### Custom domain (current)
-
-The deploy workflow builds with the default target — `site:
-https://edincenanovic.com`, no `base` — and ships `public/CNAME`
-(`edincenanovic.com`). The site is served from the apex domain root:
-
-```
-https://edincenanovic.com/
-```
-
-DNS points the domain at GitHub Pages with apex `A` records → the
-[GitHub Pages IP addresses][pages-apex] and a `www` `CNAME` → `edinc.github.io`.
-**One-time GitHub setup:** **Settings → Pages → Source = "GitHub Actions"**,
-**Custom domain = `edincenanovic.com`**, then **Enforce HTTPS** once the
-certificate is issued.
-
-### Pre-DNS verification (optional)
-
-Setting `DEPLOY_TARGET=project` builds with `site: https://edinc.github.io` and
-`base: /edincenanovic.com`, publishing to the temporary GitHub Pages **project
-URL** (`https://edinc.github.io/edincenanovic.com/`). Useful for verifying the
-pipeline without DNS; not used by the current workflow.
-
-Changes are applied via a PR and merged to `main`; each push re-runs the deploy
-workflow.
-
-[pages-apex]: https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site#configuring-an-apex-domain
-
-> Internal links and `public/` asset references use the `withBase()` helper
-> (`src/lib/url.ts`) so they resolve correctly under both the project sub-path
-> and the apex root.
+- **[Authoring content](docs/authoring.md)** — add a blog post, and change site
+  copy, bio, social links and design tokens.
+- **[Deployment & custom domain](docs/deployment.md)** — GitHub Pages deploy, the
+  `DEPLOY_TARGET` build toggle, and the custom-domain / DNS setup.
 
 ## Contributing & agents
 
