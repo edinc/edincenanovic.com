@@ -76,7 +76,7 @@ updates in place instead of duplicating.
 - **Internal links & `public/` assets** must be base-path aware: wrap
   root-relative paths in `withBase()` (`src/lib/url.ts`) instead of hardcoding
   `href="/…"`, so they resolve under both the apex root and the temporary Pages
-  project sub-path (`DEPLOY_TARGET=project`; see README "Deployment").
+  project sub-path (`DEPLOY_TARGET=project`; see [`docs/deployment.md`](../docs/deployment.md)).
 - **Feature flags** live in `src/consts.ts` `FEATURES` (e.g. `blog`). One flag
   gates a whole section across nav, home, routes, feed and sitemap — flip it to
   show/hide rather than deleting code.
