@@ -1,0 +1,54 @@
+name: Deploy to GitHub Pages
+
+# Builds the Astro site and publishes it to GitHub Pages on every push to main.
+# First deploy requires: repo Settings → Pages → Source = "GitHub Actions".
+# The custom domain (public/CNAME) only resolves once DNS records are added at
+# the registrar — see README "Deployment".
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Least privilege at the workflow level; the deploy job below elevates only what
+# it needs (pages: write + id-token: write) so the build job can't publish.
+permissions:
+  contents: read
+
+# Allow one concurrent deployment; never cancel an in-progress publish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    # TEMPORARY: publish to the GitHub Pages project URL
+    # (https://edinc.github.io/edincenanovic.com/) to verify before the DNS
+    # cutover. At cutover, remove this env and re-add public/CNAME (see README).
+    env:
+      DEPLOY_TARGET: project
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build with Astro
+        uses: withastro/action@v3
+        with:
+          node-version: 20
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

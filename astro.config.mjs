@@ -3,11 +3,20 @@ import { defineConfig } from "astro/config";
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 
+// Deploy-target toggle (see README "Deployment"):
+//   • default               → custom-domain build: served at the domain root,
+//                              canonical URLs on https://edincenanovic.com.
+//   • DEPLOY_TARGET=project  → temporary GitHub Pages *project* URL
+//                              https://edinc.github.io/edincenanovic.com/ for
+//                              pre-DNS verification; sets the matching `base` so
+//                              asset/link paths resolve under the sub-path.
+const projectPages = process.env.DEPLOY_TARGET === "project";
+
 // https://astro.build/config
 export default defineConfig({
   // Production URL of the site. Used for canonical URLs, sitemap and RSS.
-  // (Local-first: this is only consumed at build time; dev runs on localhost.)
-  site: "https://edincenanovic.com",
+  site: projectPages ? "https://edinc.github.io" : "https://edincenanovic.com",
+  base: projectPages ? "/edincenanovic.com" : undefined,
   integrations: [mdx(), sitemap()],
   markdown: {
     shikiConfig: {
