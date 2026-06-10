@@ -20,6 +20,12 @@ jobs:
   verify:
     name: check · build · test
     runs-on: ubuntu-latest
+    # check/build/test need only read; the results-publishing step below needs
+    # to write a check run and a comment on the PR.
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -47,3 +53,14 @@ jobs:
 
       - name: E2E tests
         run: npm run test:e2e
+
+      - name: Publish test results to the PR
+        # Run even when a test step failed so failures are reported too.
+        if: ${{ !cancelled() }}
+        uses: EnricoMi/publish-unit-test-result-action@c950f6fb443cb5af20a377fd0dfaa78838901040 # v2
+        with:
+          check_name: Test results
+          comment_mode: always
+          files: |
+            test-results/vitest-junit.xml
+            test-results/playwright-junit.xml
