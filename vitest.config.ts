@@ -7,6 +7,9 @@ export default getViteConfig({
   test: {
     include: ["test/unit/**/*.{test,spec}.ts"],
     environment: "node",
+    // Emit JUnit XML in CI so the workflow can publish results to the PR.
+    reporters: process.env.CI ? ["default", "junit"] : ["default"],
+    outputFile: { junit: "./reports/vitest-junit.xml" },
     coverage: {
       provider: "v8",
       include: ["src/lib/**/*.ts"],

@@ -53,6 +53,12 @@ npm run test:e2e   # Playwright only (builds + previews on 4322)
 A change is "green" only when `npm run check`, `npm run build`, and `npm run test`
 all pass with **0 errors / 0 warnings**.
 
+CI (`.github/workflows/ci.yml`) runs this same gate on every push and PR, and
+posts a sticky **test-results table** comment on the PR via
+`scripts/test-report.mjs` (which parses the vitest + Playwright JUnit reports in
+`reports/`). Keep the `<!-- ci-test-results -->` marker in the comment body so it
+updates in place instead of duplicating.
+
 ## Conventions
 
 - **Content lives in `src/consts.ts`** (name, role, bio, socials, nav, SITE
@@ -71,6 +77,9 @@ all pass with **0 errors / 0 warnings**.
   root-relative paths in `withBase()` (`src/lib/url.ts`) instead of hardcoding
   `href="/…"`, so they resolve under both the apex root and the temporary Pages
   project sub-path (`DEPLOY_TARGET=project`; see README "Deployment").
+- **Feature flags** live in `src/consts.ts` `FEATURES` (e.g. `blog`). One flag
+  gates a whole section across nav, home, routes, feed and sitemap — flip it to
+  show/hide rather than deleting code.
 - Keep client JS minimal and inline only where needed (theme no-flash, 404 path,
   copy buttons). No frameworks.
 

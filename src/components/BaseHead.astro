@@ -1,5 +1,5 @@
 ---
-import { SITE } from "../consts";
+import { SITE, FEATURES } from "../consts";
 import { withBase } from "../lib/url";
 
 export interface Props {
@@ -50,12 +50,16 @@ const socialImage = new URL(withBase(image), Astro.site);
 
 <link rel="icon" type="image/svg+xml" href={withBase("/favicon.svg")} />
 <link rel="sitemap" href={withBase("/sitemap-index.xml")} />
-<link
-  rel="alternate"
-  type="application/rss+xml"
-  title={SITE.name}
-  href={new URL(withBase("/rss.xml"), Astro.site)}
-/>
+{
+  FEATURES.blog && (
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={SITE.name}
+      href={new URL(withBase("/rss.xml"), Astro.site)}
+    />
+  )
+}
 
 <!-- Open Graph -->
 <meta property="og:type" content={article ? "article" : "website"} />

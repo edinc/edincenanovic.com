@@ -1,10 +1,13 @@
 import rss from "@astrojs/rss";
 import { getCollection } from "astro:content";
-import { SITE } from "../consts";
+import { SITE, FEATURES } from "../consts";
 import { byPubDateDesc, isSyndicated } from "../lib/posts";
 import { withBase } from "../lib/url";
 
 export async function GET(context) {
+  if (!FEATURES.blog) {
+    return new Response(null, { status: 404 });
+  }
   const posts = (await getCollection("blog", isSyndicated)).sort(byPubDateDesc);
 
   return rss({

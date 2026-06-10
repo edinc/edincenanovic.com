@@ -5,16 +5,18 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import Prompt from "../components/Prompt.astro";
 import SocialLinks from "../components/SocialLinks.astro";
 import PostCard from "../components/PostCard.astro";
-import { SITE, SOCIALS } from "../consts";
+import { SITE, SOCIALS, FEATURES } from "../consts";
 import portrait from "../assets/edin.jpg";
 import { byPubDateDesc, isVisible } from "../lib/posts";
 import { personWebSiteGraph } from "../lib/seo";
 import { withBase } from "../lib/url";
 
 const isProd = import.meta.env.PROD;
-const posts = (await getCollection("blog", (entry) => isVisible(entry, isProd)))
-  .sort(byPubDateDesc)
-  .slice(0, 3);
+const posts = FEATURES.blog
+  ? (await getCollection("blog", (entry) => isVisible(entry, isProd)))
+      .sort(byPubDateDesc)
+      .slice(0, 3)
+  : [];
 
 const origin = new URL(import.meta.env.BASE_URL, Astro.site ?? "https://edincenanovic.com/").href;
 const jsonLd = personWebSiteGraph(

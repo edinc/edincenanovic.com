@@ -2,6 +2,7 @@
 import { defineConfig } from "astro/config";
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
+import { FEATURES } from "./src/consts";
 
 // Deploy-target toggle (see README "Deployment"):
 //   • default               → custom-domain build: served at the domain root,
@@ -17,7 +18,11 @@ export default defineConfig({
   // Production URL of the site. Used for canonical URLs, sitemap and RSS.
   site: projectPages ? "https://edinc.github.io" : "https://edincenanovic.com",
   base: projectPages ? "/edincenanovic.com" : undefined,
-  integrations: [mdx(), sitemap()],
+  integrations: [
+    mdx(),
+    // Drop blog URLs from the sitemap while the blog is hidden.
+    sitemap(FEATURES.blog ? {} : { filter: (page) => !/\/blog(\/|$)/.test(page) }),
+  ],
   markdown: {
     shikiConfig: {
       // Dual themes so code blocks adapt to the active light/dark theme.

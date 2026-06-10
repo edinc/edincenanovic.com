@@ -20,6 +20,11 @@ jobs:
   verify:
     name: check · build · test
     runs-on: ubuntu-latest
+    # check/build/test need only read; the comment step below needs to write a
+    # comment on the PR.
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -47,3 +52,40 @@ jobs:
 
       - name: E2E tests
         run: npm run test:e2e
+
+      - name: Build test report
+        # Run even when a test step failed so failures are reported too.
+        if: ${{ !cancelled() }}
+        run: node scripts/test-report.mjs >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Comment test results on the PR
+        if: ${{ !cancelled() && github.event_name == 'pull_request' }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require("fs");
+            const path = "reports/comment.md";
+            if (!fs.existsSync(path)) return;
+            const marker = "<!-- ci-test-results -->";
+            const body = fs.readFileSync(path, "utf8");
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+            try {
+              const comments = await github.paginate(github.rest.issues.listComments, {
+                owner,
+                repo,
+                issue_number,
+                per_page: 100,
+              });
+              const existing = comments.find(
+                (c) => c.user?.type === "Bot" && c.body?.includes(marker)
+              );
+              if (existing) {
+                await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
+              } else {
+                await github.rest.issues.createComment({ owner, repo, issue_number, body });
+              }
+            } catch (error) {
+              // On fork PRs the token is read-only; don't fail CI over a comment.
+              core.warning(`Could not post the test-results comment: ${error.message}`);
+            }

@@ -36,11 +36,19 @@ test("404 page is noindex and reflects the requested path via JS", async ({
   );
 });
 
-test("blog index has a single h1 and no skipped heading levels", async ({
-  page,
+test("blog is hidden from the nav and the home page", async ({ page }) => {
+  await page.goto("/");
+  await expect(
+    page.getByRole("navigation").getByRole("link", { name: "blog" })
+  ).toHaveCount(0);
+  // The home "latest posts" section (aria-labelledby="posts-heading") is gone.
+  await expect(page.locator("#posts-heading")).toHaveCount(0);
+});
+
+test("the blog index redirects to home while the blog is hidden", async ({
+  request,
 }) => {
-  await page.goto("/blog/");
-  await expect(page.locator("h1")).toHaveCount(1);
-  // Post titles are h2 now; there should be no h3 jump on this page.
-  expect(await page.locator("main h3").count()).toBe(0);
+  const res = await request.get("/blog/");
+  expect(res.status()).toBe(200);
+  expect(await res.text()).toMatch(/http-equiv=["']?refresh/i);
 });
