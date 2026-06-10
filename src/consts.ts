@@ -27,6 +27,18 @@ export const FEATURES: Record<"blog", boolean> = {
   blog: false,
 };
 
+/**
+ * Analytics configuration. The Cloudflare Web Analytics beacon is cookieless
+ * and privacy-friendly (no consent banner needed). The token is **public** — it
+ * ships in the page HTML for every visitor — so it lives in source, not a
+ * secret. The beacon only loads in production builds (see `src/lib/analytics.ts`
+ * and `BaseHead.astro`); set the token to an empty string to disable analytics.
+ */
+export const ANALYTICS = {
+  /** Cloudflare Web Analytics beacon token. Empty string disables the beacon. */
+  cloudflareToken: "9c0afd2eb9e44c0e9c1517b3e413a4ea",
+} as const;
+
 export interface NavItem {
   label: string;
   href: string;
