@@ -103,36 +103,33 @@ Hosted on **GitHub Pages**, deployed by GitHub Actions
 ([`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)) on every push to
 `main`. Requires a **public** repo (GitHub Free) or GitHub Pro for private Pages.
 
-Deployment happens in two phases, controlled by the `DEPLOY_TARGET` build env in
-`astro.config.mjs`:
+The build target is controlled by the `DEPLOY_TARGET` env in `astro.config.mjs`.
 
-### Phase 1 — temporary project URL (current)
+### Custom domain (current)
 
-The deploy workflow sets `DEPLOY_TARGET=project`, which builds with
-`site: https://edinc.github.io` and `base: /edincenanovic.com` and publishes to
-the GitHub Pages **project URL**:
+The deploy workflow builds with the default target — `site:
+https://edincenanovic.com`, no `base` — and ships `public/CNAME`
+(`edincenanovic.com`). The site is served from the apex domain root:
 
 ```
-https://edinc.github.io/edincenanovic.com/
+https://edincenanovic.com/
 ```
 
-This lets us verify the live pipeline before touching DNS. No `CNAME` is shipped
-in this phase. **One-time setup:** repo **Settings → Pages → Build and deployment
-→ Source = "GitHub Actions"**.
+DNS points the domain at GitHub Pages with apex `A` records → the
+[GitHub Pages IP addresses][pages-apex] and a `www` `CNAME` → `edinc.github.io`.
+**One-time GitHub setup:** **Settings → Pages → Source = "GitHub Actions"**,
+**Custom domain = `edincenanovic.com`**, then **Enforce HTTPS** once the
+certificate is issued.
 
-### Phase 2 — custom domain cutover (later)
+### Pre-DNS verification (optional)
 
-When the design is verified on the project URL:
+Setting `DEPLOY_TARGET=project` builds with `site: https://edinc.github.io` and
+`base: /edincenanovic.com`, publishing to the temporary GitHub Pages **project
+URL** (`https://edinc.github.io/edincenanovic.com/`). Useful for verifying the
+pipeline without DNS; not used by the current workflow.
 
-1. Remove `DEPLOY_TARGET` from `deploy.yml` (the default build targets the apex
-   domain root: `site: https://edincenanovic.com`, no `base`).
-2. Add `public/CNAME` containing `edincenanovic.com` (served from `/`).
-3. At your registrar, add apex `A`/`AAAA` records → the
-   [GitHub Pages IP addresses][pages-apex] and a `www` `CNAME` →
-   `edinc.github.io`; keep the existing site live until DNS propagates.
-4. Enable **Settings → Pages → Enforce HTTPS** once the certificate is issued.
-
-Apply these via a PR and merge to `main`; each push re-runs the deploy workflow.
+Changes are applied via a PR and merged to `main`; each push re-runs the deploy
+workflow.
 
 [pages-apex]: https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site#configuring-an-apex-domain
 

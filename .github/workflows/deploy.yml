@@ -24,11 +24,9 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-    # TEMPORARY: publish to the GitHub Pages project URL
-    # (https://edinc.github.io/edincenanovic.com/) to verify before the DNS
-    # cutover. At cutover, remove this env and re-add public/CNAME (see README).
-    env:
-      DEPLOY_TARGET: project
+    # Builds at the apex domain root (site: https://edincenanovic.com, no base).
+    # The custom domain is served via public/CNAME + Settings → Pages → Custom
+    # domain; DNS A/CNAME records point the domain at GitHub Pages (see README).
     steps:
       - name: Checkout
         uses: actions/checkout@v4
