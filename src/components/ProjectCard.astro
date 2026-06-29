@@ -1,0 +1,279 @@
+---
+import type { ImageMetadata } from "astro";
+import { Image } from "astro:assets";
+import { repoSlug } from "../lib/projects";
+
+export interface Props {
+  title: string;
+  description: string;
+  language: string;
+  tags: string[];
+  repo: string;
+  demo?: string;
+  stars?: number;
+  image?: ImageMetadata;
+  imageDark?: ImageMetadata;
+  imageAlt?: string;
+  imageFit?: "cover" | "contain";
+  /** Eager-load + prioritise the image (use for above-the-fold tiles). */
+  priority?: boolean;
+  /** Heading level for the card title so pages keep a valid heading order. */
+  headingLevel?: 2 | 3;
+}
+
+const {
+  title,
+  description,
+  language,
+  tags = [],
+  repo,
+  demo,
+  stars,
+  image,
+  imageDark,
+  imageAlt = "",
+  imageFit = "cover",
+  priority = false,
+  headingLevel = 2,
+} = Astro.props;
+const Heading = `h${headingLevel}` as "h2" | "h3";
+const slug = repoSlug(repo);
+// Shared responsive hints: tiles are one column on phones, ~430px in the grid.
+const sizes = "(max-width: 620px) 100vw, 430px";
+const widths = [420, 640, 860];
+const loading = priority ? "eager" : "lazy";
+const fetchpriority = priority ? "high" : "auto";
+---
+
+<article class:list={["project-card", { "project-card--has-media": image }]}>
+  {
+    image && (
+      <figure class:list={["project-card__media", `project-card__media--${imageFit}`]}>
+        <Image
+          class:list={["project-card__img", { "project-card__img--light": imageDark }]}
+          src={image}
+          alt={imageAlt}
+          widths={widths}
+          sizes={sizes}
+          loading={loading}
+          fetchpriority={fetchpriority}
+          decoding="async"
+        />
+        {imageDark && (
+          <Image
+            class="project-card__img project-card__img--dark"
+            src={imageDark}
+            alt={imageAlt}
+            widths={widths}
+            sizes={sizes}
+            loading={loading}
+            fetchpriority={fetchpriority}
+            decoding="async"
+          />
+        )}
+      </figure>
+    )
+  }
+
+  <div class="project-card__body">
+    <a
+      class="project-card__link"
+      href={repo}
+      rel="noopener noreferrer"
+      target="_blank"
+    >
+      <Heading class="project-card__title">{title}</Heading>
+    </a>
+
+    <div class="project-card__meta">
+      <span class="project-card__lang">{language}</span>
+      {
+        typeof stars === "number" && (
+          <span class="project-card__stars" aria-label={`${stars} stars`}>
+            <span aria-hidden="true">★</span> {stars}
+          </span>
+        )
+      }
+      {
+        tags.length > 0 && (
+          <ul class="project-card__tags" aria-label="Topics">
+            {tags.map((tag) => (
+              <li class="project-card__tag">#{tag}</li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+
+    <p class="project-card__desc">{description}</p>
+
+    <p class="project-card__actions">
+      <a
+        class="project-card__action"
+        href={repo}
+        rel="noopener noreferrer"
+        target="_blank"
+        tabindex="-1"
+        aria-hidden="true"
+      >
+        git clone {slug} <span class="arrow" aria-hidden="true">→</span>
+      </a>
+      {
+        demo && (
+          <a
+            class="project-card__action project-card__action--demo"
+            href={demo}
+            rel="noopener noreferrer"
+            target="_blank"
+            aria-label={`Open the live demo of ${title}`}
+          >
+            open ./demo <span class="arrow" aria-hidden="true">→</span>
+          </a>
+        )
+      }
+    </p>
+  </div>
+</article>
+
+<style>
+  .project-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: var(--bg-elev);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: border-color 0.15s ease, transform 0.15s ease;
+  }
+  .project-card:hover {
+    border-color: var(--green);
+    transform: translateY(-2px);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .project-card:hover {
+      transform: none;
+    }
+  }
+
+  /* ---- Preview media ---- */
+  .project-card__media {
+    position: relative;
+    margin: 0;
+    aspect-ratio: 16 / 9;
+    background: var(--bg-inset);
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .project-card__img {
+    width: 100%;
+    height: 100%;
+  }
+  .project-card__media--cover .project-card__img {
+    object-fit: cover;
+    object-position: top left;
+  }
+  .project-card__media--contain .project-card__img {
+    object-fit: contain;
+    padding: var(--sp-3);
+  }
+  /* Diagrams are authored on a white canvas — give the single-variant ones a
+     constant matte so they read cleanly in either theme. */
+  .project-card__media--contain {
+    background: #ffffff;
+  }
+  .project-card:hover .project-card__img {
+    opacity: 0.96;
+  }
+
+  /* Theme-aware variant swap (only when a dark image is supplied). */
+  .project-card__img--dark {
+    display: none;
+  }
+  :global([data-theme="dark"]) .project-card__media--contain {
+    /* the dark diagram variant blends into the inset surface */
+    background: var(--bg-inset);
+  }
+  :global([data-theme="dark"]) .project-card__img--light {
+    display: none;
+  }
+  :global([data-theme="dark"]) .project-card__img--dark {
+    display: block;
+  }
+
+  /* ---- Body ---- */
+  .project-card__body {
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 auto;
+    padding: var(--sp-6);
+  }
+  .project-card__title {
+    margin: 0;
+    font-size: 1.1rem;
+    word-break: break-word;
+  }
+  .project-card__link {
+    color: var(--text-strong);
+  }
+  .project-card__link:hover {
+    color: var(--blue);
+    text-decoration: none;
+  }
+  .project-card__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sp-2) var(--sp-3);
+    margin-top: var(--sp-2);
+    color: var(--text-muted);
+    font-size: 0.85rem;
+  }
+  .project-card__lang {
+    color: var(--cyan);
+  }
+  .project-card__lang::before {
+    content: "● ";
+  }
+  .project-card__stars {
+    color: var(--amber);
+  }
+  .project-card__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .project-card__tag {
+    color: var(--magenta);
+  }
+  .project-card__desc {
+    margin: var(--sp-3) 0 var(--sp-4);
+    color: var(--text);
+    flex: 1 0 auto;
+  }
+  .project-card__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sp-2) var(--sp-4);
+    margin: 0;
+    font-size: 0.85rem;
+  }
+  .project-card__action {
+    color: var(--text-muted);
+  }
+  .project-card__action:hover {
+    color: var(--green);
+  }
+  .project-card__action--demo:hover {
+    color: var(--blue);
+  }
+  .project-card__action .arrow {
+    transition: transform 0.15s ease;
+  }
+  .project-card__action:hover .arrow {
+    transform: translateX(2px);
+  }
+</style>

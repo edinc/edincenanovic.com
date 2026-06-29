@@ -20,8 +20,12 @@ export default defineConfig({
   base: projectPages ? "/edincenanovic.com" : undefined,
   integrations: [
     mdx(),
-    // Drop blog URLs from the sitemap while the blog is hidden.
-    sitemap(FEATURES.blog ? {} : { filter: (page) => !/\/blog(\/|$)/.test(page) }),
+    // Drop hidden sections from the sitemap (blog and projects are flag-gated).
+    sitemap({
+      filter: (page) =>
+        (FEATURES.blog || !/\/blog(\/|$)/.test(page)) &&
+        (FEATURES.projects || !/\/projects(\/|$)/.test(page)),
+    }),
   ],
   markdown: {
     shikiConfig: {

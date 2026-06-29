@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   personWebSiteGraph,
   blogPostingSchema,
+  collectionPageSchema,
   type SiteInfo,
 } from "../../src/lib/seo";
 
@@ -74,5 +75,36 @@ describe("blogPostingSchema", () => {
   it("joins tags into keywords when present", () => {
     const s = blogPostingSchema({ ...base, tags: ["devops", "astro"] });
     expect(s.keywords).toBe("devops, astro");
+  });
+});
+
+describe("collectionPageSchema", () => {
+  const schema = collectionPageSchema(
+    "https://edincenanovic.com/projects/",
+    "projects",
+    "Things I have built.",
+    [
+      { name: "alpha", url: "https://github.com/edinc/alpha", description: "A" },
+      { name: "beta", url: "https://github.com/edinc/beta" },
+    ]
+  );
+  const list = (schema.mainEntity as Record<string, unknown>)
+    .itemListElement as Array<Record<string, unknown>>;
+
+  it("is a CollectionPage wrapping an ItemList", () => {
+    expect(schema["@type"]).toBe("CollectionPage");
+    expect((schema.mainEntity as Record<string, unknown>)["@type"]).toBe(
+      "ItemList"
+    );
+  });
+
+  it("numbers list items from 1 in order", () => {
+    expect(list.map((i) => i.position)).toEqual([1, 2]);
+    expect(list.map((i) => i.name)).toEqual(["alpha", "beta"]);
+  });
+
+  it("omits description when absent and is JSON-serializable", () => {
+    expect(list[1]).not.toHaveProperty("description");
+    expect(() => JSON.stringify(schema)).not.toThrow();
   });
 });

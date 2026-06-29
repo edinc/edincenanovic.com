@@ -78,3 +78,38 @@ export function blogPostingSchema(a: ArticleInfo): Record<string, unknown> {
     ...(a.tags && a.tags.length > 0 ? { keywords: a.tags.join(", ") } : {}),
   };
 }
+
+export interface CollectionItem {
+  name: string;
+  url: string;
+  description?: string;
+}
+
+/**
+ * schema.org CollectionPage with an ItemList — used for index pages like the
+ * projects showcase. `url` is the page's absolute canonical URL.
+ */
+export function collectionPageSchema(
+  url: string,
+  name: string,
+  description: string,
+  items: CollectionItem[]
+): Record<string, unknown> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    url,
+    name,
+    description,
+    mainEntity: {
+      "@type": "ItemList",
+      itemListElement: items.map((item, i) => ({
+        "@type": "ListItem",
+        position: i + 1,
+        url: item.url,
+        name: item.name,
+        ...(item.description ? { description: item.description } : {}),
+      })),
+    },
+  };
+}

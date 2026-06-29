@@ -1,0 +1,97 @@
+---
+import type { ImageMetadata } from "astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Prompt from "../components/Prompt.astro";
+import ProjectCard from "../components/ProjectCard.astro";
+import { PROJECTS, FEATURES } from "../consts";
+import { sortProjects } from "../lib/projects";
+import { collectionPageSchema } from "../lib/seo";
+import { withBase } from "../lib/url";
+
+if (!FEATURES.projects) {
+  return Astro.redirect(withBase("/"));
+}
+
+const projects = sortProjects(PROJECTS);
+const description =
+  "Open-source projects I build and maintain — platform engineering, GitHub Copilot, cloud-native and dotfiles.";
+
+// Eagerly map every preview image so a bare filename in `consts.ts` resolves to
+// an optimizable ImageMetadata at build time (keeps `consts.ts` import-free).
+const imageModules = import.meta.glob<{ default: ImageMetadata }>(
+  "../assets/projects/*.{png,jpg,jpeg,webp,avif}",
+  { eager: true }
+);
+const resolveImage = (file?: string): ImageMetadata | undefined =>
+  file ? imageModules[`../assets/projects/${file}`]?.default : undefined;
+
+const origin = new URL(import.meta.env.BASE_URL, Astro.site ?? "https://edincenanovic.com/").href;
+const jsonLd = collectionPageSchema(
+  new URL("projects/", origin).href,
+  "Projects · Edin Cenanovic",
+  description,
+  projects.map((p) => ({ name: p.title, url: p.repo, description: p.description }))
+);
+---
+
+<BaseLayout title="projects" description={description} jsonLd={jsonLd}>
+  <section>
+    <Prompt command="ls -la ~/projects" path="~/projects" />
+    <h1 class="page-title">projects</h1>
+    <p class="comment page-intro">
+      {projects.length} repos — platform engineering, GitHub Copilot,
+      cloud-native &amp; dotfiles.
+    </p>
+
+    <ul class="project-list" role="list">
+      {
+        projects.map((p, i) => (
+          <li>
+            <ProjectCard
+              title={p.title}
+              description={p.description}
+              language={p.language}
+              tags={p.tags}
+              repo={p.repo}
+              demo={p.demo}
+              stars={p.stars}
+              image={resolveImage(p.image)}
+              imageDark={resolveImage(p.imageDark)}
+              imageAlt={p.imageAlt}
+              imageFit={p.imageFit}
+              priority={i < 2}
+              headingLevel={2}
+            />
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</BaseLayout>
+
+<style>
+  .page-title {
+    margin: var(--sp-2) 0 var(--sp-2);
+    font-size: clamp(1.8rem, 5vw, 2.4rem);
+  }
+  .page-intro {
+    margin: 0 0 var(--sp-8);
+    font-size: 0.95rem;
+  }
+  .project-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--sp-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .project-list > li {
+    display: flex;
+  }
+  @media (max-width: 620px) {
+    .project-list {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
