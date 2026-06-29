@@ -22,9 +22,11 @@ export interface SocialLink {
  * surface that section everywhere at once (nav, home, routes, feed, sitemap);
  * flip it back to hide it without deleting any code.
  */
-export const FEATURES: Record<"blog", boolean> = {
+export const FEATURES: Record<"blog" | "projects", boolean> = {
   /** Blog: nav link, home "latest posts", /blog, /blog/<slug>, and RSS feed. */
   blog: false,
+  /** Projects: nav link and the /projects showcase page. */
+  projects: true,
 };
 
 /**
@@ -70,6 +72,7 @@ export const SITE = {
 
 export const NAV: NavItem[] = [
   { label: "home", href: "/" },
+  { label: "projects", href: "/projects", feature: "projects" },
   { label: "blog", href: "/blog", feature: "blog" },
 ];
 
@@ -97,5 +100,107 @@ export const SOCIALS: SocialLink[] = [
     handle: "@ecenanovic",
     href: "https://www.instagram.com/ecenanovic/",
     icon: "M12 2.16c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41a3.7 3.7 0 0 1-1.38-.9 3.7 3.7 0 0 1-.9-1.38c-.16-.42-.36-1.06-.41-2.23-.06-1.27-.07-1.65-.07-4.85s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41 1.27-.06 1.65-.07 4.85-.07zM12 0C8.74 0 8.33.01 7.05.07 5.78.13 4.9.33 4.14.63c-.79.3-1.46.72-2.12 1.38C1.36 2.68.94 3.35.63 4.14.33 4.9.13 5.78.07 7.05.01 8.33 0 8.74 0 12s.01 3.67.07 4.95c.06 1.27.26 2.15.56 2.91.3.79.72 1.46 1.38 2.12.66.66 1.33 1.08 2.12 1.38.76.3 1.64.5 2.91.56C8.33 23.99 8.74 24 12 24s3.67-.01 4.95-.07c1.27-.06 2.15-.26 2.91-.56.79-.3 1.46-.72 2.12-1.38.66-.66 1.08-1.33 1.38-2.12.3-.76.5-1.64.56-2.91.06-1.28.07-1.69.07-4.95s-.01-3.67-.07-4.95c-.06-1.27-.26-2.15-.56-2.91-.3-.79-.72-1.46-1.38-2.12C21.32 1.36 20.65.94 19.86.63c-.76-.3-1.64-.5-2.91-.56C15.67.01 15.26 0 12 0zm0 5.84a6.16 6.16 0 1 0 0 12.32 6.16 6.16 0 0 0 0-12.32zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.41-10.85a1.44 1.44 0 1 0 0 2.88 1.44 1.44 0 0 0 0-2.88z",
+  },
+];
+
+export interface Project {
+  /** Repository short name. Canonical identifier for the project; the visible `git clone` slug is derived from `repo`. */
+  name: string;
+  /** Human-friendly display title shown as the tile heading. */
+  title: string;
+  /** One-line summary of what the project is and who it's for. */
+  description: string;
+  /** Primary language, shown as the lead tech pill. */
+  language: string;
+  /** A few topics/tech tags (kept short — 3–4 reads best on a tile). */
+  tags: string[];
+  /** Canonical repository URL (the tile's primary link). */
+  repo: string;
+  /** Optional live demo / homepage URL. */
+  demo?: string;
+  /** GitHub star count (decorative signal; honest, not inflated). */
+  stars?: number;
+  /** Pin to the top of the grid as a flagship project. */
+  featured?: boolean;
+  /**
+   * Optional preview image. A bare filename resolved against
+   * `src/assets/projects/` (kept as a string so this module stays free of
+   * asset imports — it is also imported by `astro.config.mjs` under Node).
+   */
+  image?: string;
+  /** Optional dark-theme variant filename; swapped in when the dark theme is active. */
+  imageDark?: string;
+  /** Accessible description of the preview image. */
+  imageAlt?: string;
+  /** How the image fills its frame: `cover` for screenshots, `contain` for diagrams. */
+  imageFit?: "cover" | "contain";
+}
+
+/**
+ * Hand-curated project showcase. Order is preserved on the page (featured
+ * pinned first); edit this list to add, remove, or reorder tiles — nothing
+ * else changes.
+ */
+export const PROJECTS: Project[] = [
+  {
+    name: "platform-engineering-landing-zone",
+    title: "Azure Platform Engineering Landing Zone",
+    description:
+      "Opinionated, secure Internal Developer Platform for Azure: private AKS, GitOps (Flux), signed supply chain, Backstage, observability & FinOps — aligned to CAF & Well-Architected.",
+    language: "Terraform",
+    tags: ["azure", "aks", "platform-engineering", "gitops"],
+    repo: "https://github.com/edinc/platform-engineering-landing-zone",
+    demo: "https://edinc.github.io/platform-engineering-landing-zone/",
+    stars: 1,
+    featured: true,
+    image: "platform-engineering-landing-zone.png",
+    imageDark: "platform-engineering-landing-zone-dark.png",
+    imageAlt:
+      "Architecture: GitHub reusable workflows federate via OIDC into a private AKS cluster running Flux, Kyverno, Backstage and observability, with ACR, Key Vault and HA Postgres behind a default-deny connectivity hub.",
+    imageFit: "contain",
+  },
+  {
+    name: "octo-eshop-demo",
+    title: "Octo eShop — Microservices Demo",
+    description:
+      "Bicycle e-commerce platform built with microservices on Azure AKS — showcasing GitHub Copilot across the full SDLC.",
+    language: "TypeScript",
+    tags: ["github-copilot", "microservices", "kubernetes", "azure"],
+    repo: "https://github.com/codecurrent-sandbox/octo-eshop-demo",
+    demo: "https://codecurrent-sandbox.github.io/octo-eshop-demo/",
+    stars: 2,
+    featured: true,
+    image: "octo-eshop-demo.png",
+    imageAlt:
+      "Microservices architecture: a React SPA calls an API gateway that fans out to user, product, cart, order and payment services backed by PostgreSQL and a Redis cart cache over an event bus.",
+    imageFit: "contain",
+  },
+  {
+    name: "github-copilot-extension-starter",
+    title: "GitHub Copilot Extension Starter",
+    description:
+      "Starter template for building your own GitHub Copilot Extension, with infrastructure wired up and ready to deploy.",
+    language: "JavaScript",
+    tags: ["github-copilot", "extension", "azure", "terraform"],
+    repo: "https://github.com/edinc/github-copilot-extension-starter",
+    stars: 3,
+    image: "github-copilot-extension-starter.png",
+    imageAlt:
+      "A custom GitHub Copilot extension answering a prompt in Visual Studio Code's Copilot Chat.",
+    imageFit: "cover",
+  },
+  {
+    name: "terminal-config",
+    title: "Windows Terminal + WSL2 Setup",
+    description:
+      "My Windows Terminal + WSL2 + zsh + Powerlevel10k dotfiles — a reproducible, batteries-included shell setup.",
+    language: "Shell",
+    tags: ["wsl2", "zsh", "windows-terminal", "dotfiles"],
+    repo: "https://github.com/edinc/terminal-config",
+    stars: 13,
+    image: "terminal-config.png",
+    imageAlt:
+      "Windows Terminal running zsh with a Powerlevel10k prompt showing git status, alongside a PowerShell pane.",
+    imageFit: "cover",
   },
 ];
