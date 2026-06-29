@@ -1,0 +1,6 @@
+{
+  "apiToken": "<cloudflare-api-token-with-Account-Analytics-Read>",
+  "accountTag": "<your-cloudflare-account-id>",
+  "siteTag": "<rum-site-tag-NOT-the-page-beacon-token>",
+  "siteLabel": "edincenanovic.com"
+}

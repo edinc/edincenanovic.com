@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Cloudflare Web Analytics</title>
+    <style>
+      :root {
+        --bg: var(--background-color-default, #0d1117);
+        --fg: var(--text-color-default, #c9d1d9);
+        --muted: var(--text-color-muted, #8b949e);
+        --border: var(--border-color-default, #30363d);
+        --accent: var(--true-color-blue, #58a6ff);
+        --green: var(--true-color-green, #3fb950);
+        --bar: var(--true-color-blue-muted, #1f6feb);
+        --mono: var(--font-mono, "SFMono-Regular", Consolas, "Liberation Mono", monospace);
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--fg);
+        font-family: var(--mono);
+        font-size: 13px;
+        line-height: 1.5;
+        padding: 14px 16px 28px;
+      }
+      a { color: var(--accent); text-decoration: none; }
+      header {
+        display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+        padding-bottom: 12px; border-bottom: 1px solid var(--border); margin-bottom: 14px;
+      }
+      .title { font-weight: 600; }
+      .title .host { color: var(--green); }
+      .spacer { flex: 1 1 auto; }
+      .ranges { display: inline-flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+      .ranges button {
+        background: transparent; color: var(--muted); border: 0; padding: 4px 10px;
+        font-family: var(--mono); font-size: 12px; cursor: pointer;
+      }
+      .ranges button[aria-pressed="true"] { background: var(--border); color: var(--fg); }
+      .btn {
+        background: transparent; color: var(--muted); border: 1px solid var(--border);
+        border-radius: 6px; padding: 4px 10px; font-family: var(--mono); font-size: 12px; cursor: pointer;
+      }
+      .btn:hover { color: var(--fg); }
+      .status { color: var(--muted); font-size: 11px; }
+      .cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+      .card { border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+      .card .label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+      .card .value { font-size: 26px; font-weight: 600; margin-top: 4px; }
+      section { margin-bottom: 18px; }
+      h2 { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin: 0 0 8px; font-weight: 600; }
+      h2::before { content: "$ "; color: var(--green); }
+      .chart { display: flex; align-items: flex-end; gap: 2px; height: 90px; border-bottom: 1px solid var(--border); padding-bottom: 0; }
+      .chart .col { flex: 1 1 0; background: var(--bar); min-height: 1px; border-radius: 2px 2px 0 0; opacity: .85; }
+      .chart .col:hover { opacity: 1; }
+      table { width: 100%; border-collapse: collapse; }
+      td { padding: 3px 0; vertical-align: top; }
+      td.k { color: var(--fg); word-break: break-all; padding-right: 10px; }
+      td.n { text-align: right; color: var(--muted); white-space: nowrap; width: 1%; }
+      .grid2 { display: grid; grid-template-columns: 1fr; gap: 16px; }
+      @media (min-width: 560px) { .grid2 { grid-template-columns: 1fr 1fr; } }
+      .empty { color: var(--muted); font-style: italic; padding: 6px 0; }
+      .setup, .error {
+        border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; line-height: 1.6;
+      }
+      .error { border-color: var(--true-color-red, #f85149); }
+      code { background: rgba(127,127,127,.15); padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+      pre { background: rgba(127,127,127,.12); padding: 10px 12px; border-radius: 6px; overflow:auto; font-size: 12px; }
+      .hidden { display: none !important; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <span class="title">⛅ <span class="host" id="host">web analytics</span></span>
+      <span class="spacer"></span>
+      <span class="ranges" id="ranges" role="group" aria-label="Time range">
+        <button data-range="24h">24h</button>
+        <button data-range="7d">7d</button>
+        <button data-range="30d">30d</button>
+      </span>
+      <button class="btn" id="refresh" title="Refresh">↻</button>
+    </header>
+
+    <div class="status" id="status">Loading…</div>
+
+    <div id="dashboard" class="hidden">
+      <div class="cards">
+        <div class="card"><div class="label">Visits</div><div class="value" id="visits">–</div></div>
+        <div class="card"><div class="label">Page views</div><div class="value" id="pageviews">–</div></div>
+      </div>
+
+      <section>
+        <h2>visits over time</h2>
+        <div class="chart" id="chart"></div>
+      </section>
+
+      <div class="grid2">
+        <section>
+          <h2>top pages</h2>
+          <table id="pages"></table>
+        </section>
+        <section>
+          <h2>top referrers</h2>
+          <table id="referrers"></table>
+        </section>
+        <section>
+          <h2>top countries</h2>
+          <table id="countries"></table>
+        </section>
+      </div>
+    </div>
+
+    <div id="setup" class="setup hidden"></div>
+    <div id="error" class="error hidden"></div>
+
+    <script>
+      const nf = new Intl.NumberFormat("en");
+      let range = "7d";
+
+      const $ = (id) => document.getElementById(id);
+      const show = (el, on) => el.classList.toggle("hidden", !on);
+
+      function rowsHtml(rows) {
+        if (!rows || rows.length === 0) return '<tr><td class="empty">no data yet</td></tr>';
+        return rows
+          .map(
+            (r) =>
+              '<tr><td class="k">' +
+              escapeHtml(r.key || "(none)") +
+              '</td><td class="n">' +
+              nf.format(r.count) +
+              "</td></tr>"
+          )
+          .join("");
+      }
+
+      function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+      }
+
+      function renderChart(series) {
+        const el = $("chart");
+        if (!series || series.length === 0) { el.innerHTML = '<span class="empty">no data yet</span>'; return; }
+        const max = Math.max(1, ...series.map((p) => p.visits));
+        el.innerHTML = series
+          .map((p) => {
+            const h = Math.round((p.visits / max) * 100);
+            const title = (p.ts || "") + " · " + nf.format(p.visits) + " visits";
+            return '<div class="col" style="height:' + h + '%" title="' + escapeHtml(title) + '"></div>';
+          })
+          .join("");
+      }
+
+      async function load() {
+        $("status").textContent = "Loading " + range + "…";
+        show($("error"), false);
+        show($("setup"), false);
+        try {
+          const res = await fetch("/api/stats?range=" + encodeURIComponent(range), { cache: "no-store" });
+          const body = await res.json();
+          if (!body.ok) {
+            if (body.error && body.error.code === "not_configured") return renderSetup(body.error.message);
+            return renderError(body.error ? body.error.message : "Unknown error");
+          }
+          renderData(body.data);
+        } catch (e) {
+          renderError(String(e && e.message ? e.message : e));
+        }
+      }
+
+      function renderData(d) {
+        show($("dashboard"), true);
+        $("host").textContent = d.site || "web analytics";
+        $("visits").textContent = nf.format(d.visits);
+        $("pageviews").textContent = nf.format(d.pageViews);
+        renderChart(d.series);
+        $("pages").innerHTML = rowsHtml(d.pages);
+        $("referrers").innerHTML = rowsHtml(d.referrers);
+        $("countries").innerHTML = rowsHtml(d.countries);
+        const when = d.updatedAt ? new Date(d.updatedAt).toLocaleTimeString() : "";
+        $("status").textContent = "Range " + d.range + " · updated " + when;
+      }
+
+      function renderError(msg) {
+        show($("dashboard"), false);
+        show($("error"), true);
+        $("status").textContent = "Error";
+        $("error").innerHTML = "<strong>Couldn't load analytics.</strong><br><pre>" + escapeHtml(msg) + "</pre>";
+      }
+
+      function renderSetup(msg) {
+        show($("dashboard"), false);
+        show($("setup"), true);
+        $("status").textContent = "Not configured";
+        $("setup").innerHTML = msg;
+      }
+
+      $("ranges").addEventListener("click", (e) => {
+        const b = e.target.closest("button[data-range]");
+        if (!b) return;
+        range = b.dataset.range;
+        for (const btn of $("ranges").querySelectorAll("button")) btn.setAttribute("aria-pressed", String(btn === b));
+        load();
+      });
+      $("refresh").addEventListener("click", load);
+
+      // Initial pressed state + first load + gentle auto-refresh.
+      for (const btn of $("ranges").querySelectorAll("button")) btn.setAttribute("aria-pressed", String(btn.dataset.range === range));
+      load();
+      setInterval(load, 60000);
+    </script>
+  </body>
+</html>

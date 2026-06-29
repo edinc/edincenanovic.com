@@ -22,6 +22,8 @@ pnpm-debug.log*
 .env
 .env.production
 .env.*.local
+# local secrets for Copilot canvas extensions (read from ~/.copilot, never committed)
+.github/extensions/*/.config.json
 
 # macOS
 .DS_Store
