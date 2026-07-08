@@ -32,3 +32,17 @@ export function repoSlug(repoUrl: string): string {
   const match = repoUrl.match(/github\.com\/([^/]+\/[^/]+?)(?:\.git)?\/?$/);
   return match ? match[1] : repoUrl;
 }
+
+/**
+ * The tile's primary destination: the public repo when there is one, otherwise
+ * the live site (`demo`) for closed-source products. Throws if a project has
+ * neither, surfacing the data error at build time instead of rendering a
+ * link-less tile.
+ */
+export function projectHref(project: { repo?: string; demo?: string }): string {
+  const href = project.repo ?? project.demo;
+  if (!href) {
+    throw new Error("project must have a `repo` or `demo` URL");
+  }
+  return href;
+}

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { sortProjects, repoSlug } from "../../src/lib/projects";
+import { sortProjects, repoSlug, projectHref } from "../../src/lib/projects";
 
 describe("sortProjects", () => {
   const items = [
@@ -47,5 +47,23 @@ describe("repoSlug", () => {
 
   it("falls back to the input for non-github URLs", () => {
     expect(repoSlug("https://example.com/x")).toBe("https://example.com/x");
+  });
+});
+
+describe("projectHref", () => {
+  it("prefers the public repo as the primary link", () => {
+    expect(
+      projectHref({ repo: "https://github.com/edinc/x", demo: "https://x.app/" })
+    ).toBe("https://github.com/edinc/x");
+  });
+
+  it("falls back to the live site when there is no repo (closed-source product)", () => {
+    expect(projectHref({ demo: "https://sportsdispatch.app/" })).toBe(
+      "https://sportsdispatch.app/"
+    );
+  });
+
+  it("throws when a project has neither a repo nor a demo", () => {
+    expect(() => projectHref({})).toThrow();
   });
 });

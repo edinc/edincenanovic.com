@@ -1,14 +1,14 @@
 ---
 import type { ImageMetadata } from "astro";
 import { Image } from "astro:assets";
-import { repoSlug } from "../lib/projects";
+import { repoSlug, projectHref } from "../lib/projects";
 
 export interface Props {
   title: string;
   description: string;
   language: string;
   tags: string[];
-  repo: string;
+  repo?: string;
   demo?: string;
   stars?: number;
   image?: ImageMetadata;
@@ -37,7 +37,13 @@ const {
   headingLevel = 2,
 } = Astro.props;
 const Heading = `h${headingLevel}` as "h2" | "h3";
-const slug = repoSlug(repo);
+// Primary link: the public repo, or the live site for closed-source products.
+const primaryHref = projectHref({ repo, demo });
+// The "git clone" affordance only makes sense for a public repo.
+const slug = repo ? repoSlug(repo) : undefined;
+// A repo project links to a live "demo"; a repo-less product opens the project itself.
+const demoLabel = repo ? "open ./demo" : "open project";
+const demoAriaLabel = repo ? `Open the live demo of ${title}` : `Open ${title}`;
 // Shared responsive hints: tiles are one column on phones, ~430px in the grid.
 const sizes = "(max-width: 620px) 100vw, 430px";
 const widths = [420, 640, 860];
@@ -78,7 +84,7 @@ const fetchpriority = priority ? "high" : "auto";
   <div class="project-card__body">
     <a
       class="project-card__link"
-      href={repo}
+      href={primaryHref}
       rel="noopener noreferrer"
       target="_blank"
     >
@@ -108,16 +114,20 @@ const fetchpriority = priority ? "high" : "auto";
     <p class="project-card__desc">{description}</p>
 
     <p class="project-card__actions">
-      <a
-        class="project-card__action"
-        href={repo}
-        rel="noopener noreferrer"
-        target="_blank"
-        tabindex="-1"
-        aria-hidden="true"
-      >
-        git clone {slug} <span class="arrow" aria-hidden="true">→</span>
-      </a>
+      {
+        repo && slug && (
+          <a
+            class="project-card__action"
+            href={repo}
+            rel="noopener noreferrer"
+            target="_blank"
+            tabindex="-1"
+            aria-hidden="true"
+          >
+            git clone {slug} <span class="arrow" aria-hidden="true">→</span>
+          </a>
+        )
+      }
       {
         demo && (
           <a
@@ -125,9 +135,9 @@ const fetchpriority = priority ? "high" : "auto";
             href={demo}
             rel="noopener noreferrer"
             target="_blank"
-            aria-label={`Open the live demo of ${title}`}
+            aria-label={demoAriaLabel}
           >
-            open ./demo <span class="arrow" aria-hidden="true">→</span>
+            {demoLabel} <span class="arrow" aria-hidden="true">→</span>
           </a>
         )
       }
