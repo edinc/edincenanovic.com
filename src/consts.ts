@@ -55,6 +55,8 @@ export const SITE = {
   domain: "edincenanovic.com",
   /** Shell username used in the decorative prompt (user@host:~$). */
   user: "edin",
+  /** Public contact email (shown as a mailto link in the footer). */
+  email: "cenanovice@gmail.com",
   /** Short role/title. */
   role: "Solution Architect",
   /** One-line tagline for meta description fallbacks. */
@@ -114,9 +116,16 @@ export interface Project {
   language: string;
   /** A few topics/tech tags (kept short — 3–4 reads best on a tile). */
   tags: string[];
-  /** Canonical repository URL (the tile's primary link). */
-  repo: string;
-  /** Optional live demo / homepage URL. */
+  /**
+   * Canonical repository URL — the tile's primary link and the source of the
+   * `git clone` slug. Omit for closed-source products: the tile then links to
+   * `demo` (its live site) and hides the clone affordance.
+   */
+  repo?: string;
+  /**
+   * Optional live demo / homepage URL. Becomes the tile's primary link when
+   * `repo` is omitted.
+   */
   demo?: string;
   /** GitHub star count (decorative signal; honest, not inflated). */
   stars?: number;
@@ -142,6 +151,20 @@ export interface Project {
  * else changes.
  */
 export const PROJECTS: Project[] = [
+  {
+    name: "sports-dispatch",
+    title: "Sports Dispatch",
+    description:
+      "A daily email digest of today's fixtures for the teams and leagues you follow — football, basketball, tennis and Formula 1, with kickoff times in your timezone.",
+    language: "TypeScript",
+    tags: ["sveltekit", "supabase", "cloudflare", "email"],
+    demo: "https://sportsdispatch.app/",
+    featured: true,
+    image: "sports-dispatch.png",
+    imageAlt:
+      "Sports Dispatch promo card: the wordmark above the headline \"Your sports. Every morning. One email.\" beside a scoreboard listing today's fixtures and kickoff times.",
+    imageFit: "cover",
+  },
   {
     name: "platform-engineering-landing-zone",
     title: "Azure Platform Engineering Landing Zone",

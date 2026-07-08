@@ -4,7 +4,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import Prompt from "../components/Prompt.astro";
 import ProjectCard from "../components/ProjectCard.astro";
 import { PROJECTS, FEATURES } from "../consts";
-import { sortProjects } from "../lib/projects";
+import { sortProjects, projectHref } from "../lib/projects";
 import { collectionPageSchema } from "../lib/seo";
 import { withBase } from "../lib/url";
 
@@ -14,7 +14,7 @@ if (!FEATURES.projects) {
 
 const projects = sortProjects(PROJECTS);
 const description =
-  "Open-source projects I build and maintain — platform engineering, GitHub Copilot, cloud-native and dotfiles.";
+  "Projects I build and maintain — platform engineering, GitHub Copilot, cloud-native, dotfiles, and a daily sports email.";
 
 // Eagerly map every preview image so a bare filename in `consts.ts` resolves to
 // an optimizable ImageMetadata at build time (keeps `consts.ts` import-free).
@@ -30,7 +30,7 @@ const jsonLd = collectionPageSchema(
   new URL("projects/", origin).href,
   "Projects · Edin Cenanovic",
   description,
-  projects.map((p) => ({ name: p.title, url: p.repo, description: p.description }))
+  projects.map((p) => ({ name: p.title, url: projectHref(p), description: p.description }))
 );
 ---
 
@@ -39,7 +39,7 @@ const jsonLd = collectionPageSchema(
     <Prompt command="ls -la ~/projects" path="~/projects" />
     <h1 class="page-title">projects</h1>
     <p class="comment page-intro">
-      {projects.length} repos — platform engineering, GitHub Copilot,
+      {projects.length} projects — platform engineering, GitHub Copilot,
       cloud-native &amp; dotfiles.
     </p>
 

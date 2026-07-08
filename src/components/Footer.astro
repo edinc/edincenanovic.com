@@ -32,7 +32,9 @@ const year = new Date().getFullYear();
       </span>
     </p>
     <p class="site-footer__copy">
-      <span aria-hidden="true" class="prompt__user">{SITE.user}@{SITE.domain}</span>
+      <a class="prompt__user site-footer__email" href={`mailto:${SITE.email}`}>
+        {SITE.email}
+      </a>
       <span class="comment">&copy; {year} {SITE.name}</span>
     </p>
   </div>
@@ -81,5 +83,9 @@ const year = new Date().getFullYear();
     flex-wrap: wrap;
     gap: var(--sp-2);
     align-items: baseline;
+  }
+  /* Grow the contact link's hit area vertically without shifting the baseline. */
+  .site-footer__email {
+    padding-block: 4px;
   }
 </style>

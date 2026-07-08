@@ -47,3 +47,16 @@ test("bio text matches the hero box width", async ({ page }) => {
   expect(bio).not.toBeNull();
   expect(Math.round(bio!.width)).toBe(Math.round(hero!.width));
 });
+
+test("footer exposes a working contact email as a mailto link", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const email = page.locator(".site-footer__email");
+  await expect(email).toHaveText("cenanovice@gmail.com");
+  await expect(email).toHaveAttribute("href", "mailto:cenanovice@gmail.com");
+  // The old address that looked like a real (but dead) inbox must not resurface.
+  await expect(page.locator(".site-footer")).not.toContainText(
+    "edin@edincenanovic.com"
+  );
+});
