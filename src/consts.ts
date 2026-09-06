@@ -145,12 +145,33 @@ export interface Project {
   imageFit?: "cover" | "contain";
 }
 
+export const PROJECTS_PAGE = {
+  description:
+    "Projects I build and maintain — iPhone and web apps, platform engineering, GitHub Copilot, cloud-native and dotfiles.",
+  intro:
+    "projects — iPhone & web apps, platform engineering, GitHub Copilot, cloud-native & dotfiles.",
+} as const;
+
 /**
  * Hand-curated project showcase. Order is preserved on the page (featured
  * pinned first); edit this list to add, remove, or reorder tiles — nothing
  * else changes.
  */
 export const PROJECTS: Project[] = [
+  {
+    name: "folge-app",
+    title: "Folge",
+    description:
+      "A private iPhone tracker for TV shows and movies. See what's next, keep your watch history, and get widgets and episode reminders, without an account or ads.",
+    language: "Swift",
+    tags: ["swiftui", "swiftdata", "widgetkit", "ios"],
+    demo: "https://getfolge.app/",
+    featured: true,
+    image: "folge.png",
+    imageAlt:
+      "Folge promo card with the headline \"What's next?\" beside an iPhone showing the Up Next screen for TV shows and movies.",
+    imageFit: "cover",
+  },
   {
     name: "sports-dispatch",
     title: "Sports Dispatch",

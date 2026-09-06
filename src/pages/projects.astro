@@ -3,7 +3,7 @@ import type { ImageMetadata } from "astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Prompt from "../components/Prompt.astro";
 import ProjectCard from "../components/ProjectCard.astro";
-import { PROJECTS, FEATURES } from "../consts";
+import { PROJECTS, PROJECTS_PAGE, FEATURES } from "../consts";
 import { sortProjects, projectHref } from "../lib/projects";
 import { collectionPageSchema } from "../lib/seo";
 import { withBase } from "../lib/url";
@@ -13,8 +13,7 @@ if (!FEATURES.projects) {
 }
 
 const projects = sortProjects(PROJECTS);
-const description =
-  "Projects I build and maintain — platform engineering, GitHub Copilot, cloud-native, dotfiles, and a daily sports email.";
+const { description } = PROJECTS_PAGE;
 
 // Eagerly map every preview image so a bare filename in `consts.ts` resolves to
 // an optimizable ImageMetadata at build time (keeps `consts.ts` import-free).
@@ -39,8 +38,7 @@ const jsonLd = collectionPageSchema(
     <Prompt command="ls -la ~/projects" path="~/projects" />
     <h1 class="page-title">projects</h1>
     <p class="comment page-intro">
-      {projects.length} projects — platform engineering, GitHub Copilot,
-      cloud-native &amp; dotfiles.
+      {projects.length} {PROJECTS_PAGE.intro}
     </p>
 
     <ul class="project-list" role="list">
